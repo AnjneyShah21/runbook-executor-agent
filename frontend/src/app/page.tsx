@@ -9,11 +9,21 @@ import { SeverityDistribution } from '@/components/dashboard/SeverityDistributio
 import { RecentIncidentsTable } from '@/components/dashboard/RecentIncidentsTable';
 import { ApprovalCard } from '@/components/approvals/ApprovalCard';
 import Link from 'next/link';
-import { PlusCircle, ShieldAlert, RefreshCw, Zap, ArrowRight } from 'lucide-react';
+import { PlusCircle, ShieldAlert, RefreshCw, Zap, ArrowRight, Filter } from 'lucide-react';
+
+const CATEGORY_PILLS = [
+  { id: 'ALL', label: 'All Incidents' },
+  { id: 'CPU', label: 'High CPU Runbooks →' },
+  { id: 'AVAILABILITY', label: 'Service Availability →' },
+  { id: 'DATABASE', label: 'Database Pools →' },
+  { id: 'APPROVAL', label: 'Human Gates' },
+  { id: 'RESOLVED', label: 'Verified Audits' },
+];
 
 export default function DashboardPage() {
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activePill, setActivePill] = useState('ALL');
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -37,6 +47,16 @@ export default function DashboardPage() {
     };
   }, []);
 
+  const filteredIncidents = incidents.filter((inc) => {
+    if (activePill === 'ALL') return true;
+    if (activePill === 'CPU') return inc.intake.title.toLowerCase().includes('cpu');
+    if (activePill === 'AVAILABILITY') return inc.intake.serviceName.toLowerCase().includes('gateway') || inc.intake.title.toLowerCase().includes('unavailable');
+    if (activePill === 'DATABASE') return inc.intake.serviceName.toLowerCase().includes('db') || inc.intake.title.toLowerCase().includes('database');
+    if (activePill === 'APPROVAL') return inc.status === 'Awaiting Approval';
+    if (activePill === 'RESOLVED') return inc.status === 'Resolved';
+    return true;
+  });
+
   const pendingApprovalIncident = incidents.find((i) => i.status === 'Awaiting Approval');
 
   return (
@@ -49,12 +69,12 @@ export default function DashboardPage() {
         className="relative overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-900/90 via-indigo-950/40 to-slate-900/90 p-8 lg:p-10 glass-card glow-indigo"
       >
         {/* Ambient background glow accents */}
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div className="space-y-3 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
               <Zap className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
               <span>TrueForge Agent Harness v0.2.0 • Autonomous SRE Ops</span>
             </div>
@@ -72,7 +92,7 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             <Link
               href="/incidents/new"
-              className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3 px-5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all duration-200"
+              className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all duration-200"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Report Production Incident</span>
@@ -80,15 +100,42 @@ export default function DashboardPage() {
 
             <button
               onClick={fetchDashboardData}
-              className="p-3 rounded-xl bg-slate-900/80 border border-slate-700/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+              className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-700/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
               title="Refresh Telemetry Data"
             >
               <RefreshCw className={`w-4 h-4 text-indigo-400 ${loading ? 'animate-spin' : ''}`} />
-              <span>Sync Status</span>
+              <span>Sync Telemetry</span>
             </button>
           </div>
         </div>
       </motion.div>
+
+      {/* Scrolltide Category Filter Pills (Inspired by Scrolltide Library Header) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-bold text-slate-300 uppercase tracking-wider">
+            <Filter className="w-3.5 h-3.5 text-indigo-400" />
+            <span>The Telemetry Library, at a glance</span>
+          </div>
+          <span className="text-xs text-slate-400 font-mono">{filteredIncidents.length} Filtered Results</span>
+        </div>
+
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {CATEGORY_PILLS.map((pill) => (
+            <button
+              key={pill.id}
+              onClick={() => setActivePill(pill.id)}
+              className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 ${
+                activePill === pill.id
+                  ? 'bg-slate-100 text-slate-950 shadow-lg shadow-indigo-500/20 scale-105'
+                  : 'bg-slate-900/80 text-slate-400 border border-slate-800 hover:text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              {pill.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Stats Cards Grid */}
       <StatsCards incidents={incidents} />
@@ -120,7 +167,7 @@ export default function DashboardPage() {
       {/* Main Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <RecentIncidentsTable incidents={incidents} />
+          <RecentIncidentsTable incidents={filteredIncidents} />
         </div>
         <div>
           <SeverityDistribution incidents={incidents} />
