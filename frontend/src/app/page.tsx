@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { InteractiveMeshBackground } from '@/components/aceternity/InteractiveMeshBackground';
 import { InteractiveBentoGrid } from '@/components/aceternity/InteractiveBentoGrid';
+import { TypewriterTitle } from '@/components/ui/TypewriterTitle';
 
 const PLATFORM_FEATURES = [
   {
@@ -228,17 +229,7 @@ export default function FeaturesHomePage() {
           <span>Next-Generation Autonomous SRE Operations</span>
         </motion.div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight"
-        >
-          Autonomous Production <br />
-          <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-            Incident Diagnosis & Runbook Execution
-          </span>
-        </motion.h1>
+        <TypewriterTitle />
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
