@@ -34,7 +34,7 @@ export default function SignInPage() {
     if (res?.error) {
       setError('Invalid email or password.');
     } else {
-      router.push('/');
+      router.push('/onboarding');
       router.refresh();
     }
   };
@@ -43,7 +43,7 @@ export default function SignInPage() {
     setGoogleLoading(true);
     setError(null);
     try {
-      await signIn('google', { callbackUrl: '/' });
+      await signIn('google', { callbackUrl: '/onboarding' });
     } catch {
       // Fallback for demo when Google OAuth keys are not configured yet
       await signIn('credentials', {
@@ -51,7 +51,7 @@ export default function SignInPage() {
         password: 'demo',
         redirect: false,
       });
-      router.push('/');
+      router.push('/onboarding');
       router.refresh();
     }
   };
@@ -64,7 +64,7 @@ export default function SignInPage() {
       redirect: false,
     });
     setLoading(false);
-    router.push('/');
+    router.push('/onboarding');
     router.refresh();
   };
 

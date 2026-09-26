@@ -36,7 +36,7 @@ export default function SignUpPage() {
     if (res?.error) {
       setError('Failed to create account.');
     } else {
-      router.push('/');
+      router.push('/onboarding');
       router.refresh();
     }
   };
@@ -45,14 +45,14 @@ export default function SignUpPage() {
     setGoogleLoading(true);
     setError(null);
     try {
-      await signIn('google', { callbackUrl: '/' });
+      await signIn('google', { callbackUrl: '/onboarding' });
     } catch {
       await signIn('credentials', {
         email: email || 'arkodeepbr10260@gmail.com',
         password: 'demo',
         redirect: false,
       });
-      router.push('/');
+      router.push('/onboarding');
       router.refresh();
     }
   };
