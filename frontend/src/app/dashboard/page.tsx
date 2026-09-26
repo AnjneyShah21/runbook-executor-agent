@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { IncidentState } from '@/types/incident';
 import { IncidentService } from '@/services/incident-service';
@@ -29,15 +30,11 @@ const CATEGORY_PILLS = [
 ];
 
 export default function OperationalDashboardPage() {
+  const router = useRouter();
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePill, setActivePill] = useState('ALL');
-  const [userDesignation] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sre_user_designation') || 'Lead SRE';
-    }
-    return 'Lead SRE';
-  });
+  const [userDesignation, setUserDesignation] = useState<string>('');
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -48,6 +45,17 @@ export default function OperationalDashboardPage() {
 
   useEffect(() => {
     let active = true;
+
+    // Check designation details: if missing, mandate onboarding first
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sre_user_designation');
+      if (!saved) {
+        router.push('/onboarding');
+        return;
+      }
+      setUserDesignation(saved);
+    }
+
     const load = async () => {
       setLoading(true);
       const { incidents: data } = await IncidentService.getAllIncidents();
@@ -56,10 +64,11 @@ export default function OperationalDashboardPage() {
       setLoading(false);
     };
     load();
+
     return () => {
       active = false;
     };
-  }, []);
+  }, [router]);
 
   const filteredIncidents = incidents.filter((inc) => {
     if (activePill === 'ALL') return true;
@@ -98,7 +107,7 @@ export default function OperationalDashboardPage() {
               </span>
               <span className="px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700 text-slate-300 text-xs font-mono flex items-center gap-1.5">
                 <UserCheck className="w-3.5 h-3.5 text-cyan-400" />
-                Role: <strong className="text-slate-100">{userDesignation}</strong>
+                Role: <strong className="text-slate-100">{userDesignation || 'SRE Operator'}</strong>
               </span>
             </div>
             <h1 className="text-2xl lg:text-3xl font-black text-slate-100 tracking-tight">
