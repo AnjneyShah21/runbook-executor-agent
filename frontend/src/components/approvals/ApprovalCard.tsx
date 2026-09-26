@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { IncidentState } from '@/types/incident';
 import { IncidentService } from '@/services/incident-service';
 import {
@@ -20,26 +21,43 @@ interface ApprovalCardProps {
 }
 
 export function ApprovalCard({ incident, onDecisionSubmitted }: ApprovalCardProps) {
+  const { data: session } = useSession();
   const approval = incident.approvalRequest;
-  const [approverName, setApproverName] = useState('Alice Cooper (Lead SRE)');
+
+  const getLoggedInOperatorName = () => {
+    const userName = session?.user?.name || 'SRE Operator';
+    let designation = 'Lead SRE';
+    if (typeof window !== 'undefined') {
+      designation = localStorage.getItem('sre_user_designation') || 'Lead SRE';
+    }
+    return `${userName} (${designation})`;
+  };
+
+  const [approverName, setApproverName] = useState(getLoggedInOperatorName());
   const [reason, setReason] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showModal, setShowModal] = useState<'APPROVE' | 'REJECT' | null>(null);
+
+  useEffect(() => {
+    setApproverName(getLoggedInOperatorName());
+  }, [session]);
 
   if (!approval) return null;
 
   const handleDecision = async (action: 'APPROVE' | 'REJECT') => {
     setSubmitting(true);
+    const activeOperator = approverName || getLoggedInOperatorName();
+
     if (action === 'APPROVE') {
       await IncidentService.approveIncident(
         incident.incidentId,
-        approverName || 'SRE Lead Operator',
+        activeOperator,
         reason || 'Authorized execution after verifying diagnostic log output.'
       );
     } else {
       await IncidentService.rejectIncident(
         incident.incidentId,
-        approverName || 'SRE Lead Operator',
+        activeOperator,
         reason || 'Rejected remediation action due to ongoing system window.'
       );
     }
