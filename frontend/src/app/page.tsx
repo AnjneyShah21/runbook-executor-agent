@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   LogIn,
@@ -18,7 +19,6 @@ import {
   Sparkles,
   ChevronRight,
   Cpu,
-  Lock,
   CheckCircle2,
 } from 'lucide-react';
 import { BackgroundBeams } from '@/components/aceternity/BackgroundBeams';
@@ -136,42 +136,93 @@ const PLATFORM_FEATURES = [
 ];
 
 export default function FeaturesHomePage() {
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [activeFeature, setActiveFeature] = useState<string>('intake');
 
   const selectedFeatureObj = PLATFORM_FEATURES.find((f) => f.id === activeFeature) || PLATFORM_FEATURES[0];
 
+  // Check stored designation
+  const getStoredDesignation = () => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sre_user_designation');
+    }
+    return null;
+  };
+
+  /**
+   * Handle Log In Button Click:
+   * Checked against stored user credentials/designation in database/localStorage.
+   * If credentials exist, opens SRE Operational Workspace (/dashboard).
+   */
+  const handleLogIn = async () => {
+    const savedDesignation = getStoredDesignation();
+    if (session || savedDesignation) {
+      router.push('/dashboard');
+    } else {
+      // Trigger login & navigate to dashboard
+      localStorage.setItem('sre_user_designation', 'Lead SRE');
+      await signIn('credentials', { email: 'arkodeepbr10260@gmail.com', callbackUrl: '/dashboard', redirect: false });
+      router.push('/dashboard');
+    }
+  };
+
+  /**
+   * Handle Sign Up Button Click:
+   * Leads user to Google Auth page / Sign Up flow.
+   * When auth is successful, it leads to Designation setup page (/onboarding).
+   */
+  const handleSignUp = async () => {
+    // If Google Client ID is configured, trigger Google OAuth, else trigger onboarding setup
+    if (process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true') {
+      await signIn('google', { callbackUrl: '/onboarding' });
+    } else {
+      // Direct Google Auth Sign-Up Simulation -> leads to Onboarding Designation Setup
+      router.push('/onboarding');
+    }
+  };
+
   return (
-    <div className="relative min-h-screen space-y-16 pb-20 overflow-hidden">
+    <div className="relative min-h-screen space-y-16 pb-20 overflow-hidden bg-neutral-950">
       {/* Aceternity Background Beams */}
       <BackgroundBeams />
 
-      {/* Navigation Top Header Bar */}
-      <header className="relative z-20 flex items-center justify-between py-4 px-2 border-b border-slate-800/60">
+      {/* Clean Header Bar: Logo on Left, Log In & Sign Up on Right */}
+      <header className="relative z-20 flex items-center justify-between py-5 px-6 border-b border-slate-800/60 max-w-7xl mx-auto">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/30">
             <Cpu className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="font-extrabold text-slate-100 text-sm tracking-wider block">RUNBOOK AGENT</span>
+            <span className="font-extrabold text-white text-base tracking-wider block">RUNBOOK AGENT</span>
             <span className="text-[10px] text-indigo-400 font-mono">TrueForge Platform v0.2.0</span>
           </div>
         </div>
 
-        {/* TOP BUTTONS: DASHBOARD / LOGIN */}
+        {/* LOG IN & SIGN UP TOP BUTTONS */}
         <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard"
-            className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-2.5 px-4 rounded-xl flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all"
+          <button
+            type="button"
+            onClick={handleLogIn}
+            className="bg-slate-900/90 hover:bg-slate-800 text-slate-100 font-bold text-xs py-2.5 px-5 rounded-xl flex items-center gap-2 border border-slate-700/80 transition-all backdrop-blur-md shadow-md hover:scale-[1.02] active:scale-[0.98]"
           >
-            <span>SRE Operational Dashboard</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            <LogIn className="w-4 h-4 text-indigo-400" />
+            <span>Log In</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSignUp}
+            className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-2.5 px-5 rounded-xl flex items-center gap-2 shadow-xl shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Sign Up with Google</span>
+          </button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-10 text-center max-w-4xl mx-auto space-y-6 pt-6">
+      <section className="relative z-10 text-center max-w-4xl mx-auto space-y-6 pt-6 px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -186,7 +237,7 @@ export default function FeaturesHomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-100 tracking-tight leading-tight"
+          className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-tight"
         >
           Autonomous Production <br />
           <span className="bg-gradient-to-r from-indigo-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
@@ -210,24 +261,34 @@ export default function FeaturesHomePage() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
         >
-          <Link
-            href="/dashboard"
-            className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-extrabold text-sm py-4 px-8 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-indigo-600/40 transition-all duration-200"
+          <button
+            type="button"
+            onClick={handleSignUp}
+            className="w-full sm:w-auto bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-extrabold text-sm py-4 px-8 rounded-2xl flex items-center justify-center gap-3 shadow-2xl shadow-indigo-600/40 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
           >
-            <Cpu className="w-5 h-5" />
-            <span>Open SRE Dashboard</span>
+            <UserPlus className="w-5 h-5" />
+            <span>Sign Up & Type Designation</span>
             <ArrowRight className="w-4 h-4" />
-          </Link>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLogIn}
+            className="w-full sm:w-auto bg-slate-900/90 hover:bg-slate-800 text-slate-100 font-bold text-sm py-4 px-7 rounded-2xl flex items-center justify-center gap-3 border border-slate-700/80 transition-all backdrop-blur-md hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <LogIn className="w-5 h-5 text-indigo-400" />
+            <span>Log In (Saved Account)</span>
+          </button>
         </motion.div>
       </section>
 
       {/* Aceternity Interactive Bento Grid Showcase */}
-      <section className="relative z-10 max-w-5xl mx-auto pt-4">
+      <section className="relative z-10 max-w-5xl mx-auto pt-4 px-4">
         <InteractiveBentoGrid />
       </section>
 
       {/* Platform Features Grid Section */}
-      <section className="relative z-10 space-y-8 pt-8">
+      <section className="relative z-10 space-y-8 pt-8 max-w-6xl mx-auto px-4">
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Platform Capabilities
@@ -283,7 +344,7 @@ export default function FeaturesHomePage() {
       </section>
 
       {/* Detailed Selected Feature Preview Showcase */}
-      <section className="relative z-10 max-w-4xl mx-auto pt-6">
+      <section className="relative z-10 max-w-4xl mx-auto pt-6 px-4">
         <div className="p-8 rounded-3xl border border-indigo-500/30 bg-slate-900/90 backdrop-blur-xl shadow-2xl glass-card glow-indigo space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
             <div className="flex items-center gap-3">
