@@ -43,6 +43,23 @@ export interface DiagnosisResult {
   summary: string;
 }
 
+export interface BlastRadiusInfo {
+  riskScore: number; // 0 to 100
+  affectedUsersEstimate: number;
+  downtimeCostPerMin: number;
+  affectedMicroservices: string[];
+  blastRadiusCategory: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+}
+
+export interface TerminalTraceStep {
+  command: string;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  durationMs: number;
+  executedAt: string;
+}
+
 export interface ApprovalRequest {
   approvalId: string;
   incidentId: string;
@@ -51,6 +68,9 @@ export interface ApprovalRequest {
   proposedCommand: string;
   expectedImpact: string;
   riskLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+  blastRadius?: BlastRadiusInfo;
+  autoApproved?: boolean;
+  autoApprovePolicy?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   requestedAt: string;
   respondedAt?: string;

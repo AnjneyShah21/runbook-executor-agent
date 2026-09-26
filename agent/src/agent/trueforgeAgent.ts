@@ -143,6 +143,17 @@ export class TrueForgeRunbookAgent {
       } else if (step.type === 'HUMAN_APPROVAL') {
         // Step 5: Human Approval Gate - Stop execution and await human decision!
         const approvalId = `APP-${randomUUID().substring(0, 8)}`;
+        const riskScore = intake.severity === 'CRITICAL' ? 88 : intake.severity === 'HIGH' ? 68 : 32;
+        const blastRadius = {
+          riskScore,
+          affectedUsersEstimate: intake.severity === 'CRITICAL' ? 2450 : 380,
+          downtimeCostPerMin: intake.severity === 'CRITICAL' ? 450 : 120,
+          affectedMicroservices: [intake.serviceName, 'api-gateway', 'auth-service'],
+          blastRadiusCategory: (intake.severity === 'CRITICAL' ? 'HIGH' : intake.severity === 'HIGH' ? 'MEDIUM' : 'LOW') as 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+        };
+
+        const isAutoApproveEligible = intake.severity === 'LOW' || (intake.severity === 'MEDIUM' && riskScore < 40);
+
         const approvalRequest: ApprovalRequest = {
           approvalId,
           incidentId,
@@ -151,11 +162,29 @@ export class TrueForgeRunbookAgent {
           proposedCommand: step.description,
           expectedImpact: step.expectedImpactDescription || 'State change on infrastructure.',
           riskLevel: intake.severity === 'CRITICAL' ? 'HIGH' : 'MEDIUM',
-          status: 'PENDING',
+          blastRadius,
+          autoApproved: isAutoApproveEligible,
+          autoApprovePolicy: isAutoApproveEligible ? 'POLICY-LOW-RISK-AUTO-REMEDIATE' : undefined,
+          status: isAutoApproveEligible ? 'APPROVED' : 'PENDING',
           requestedAt: new Date().toISOString()
         };
 
         state.approvalRequest = approvalRequest;
+
+        if (isAutoApproveEligible) {
+          this.logStep(state, {
+            stepId: step.stepId,
+            stepName: step.stepName,
+            type: 'HUMAN_APPROVAL',
+            status: 'COMPLETED',
+            outputResult: { ...approvalRequest, note: 'Auto-Approved by Policy Engine (Low Risk)' },
+            timestamp: new Date().toISOString()
+          });
+          // Auto-continue to remediation immediately
+          await this.handleApprovalDecision(incidentId, true, 'TrueForge Policy Engine (Auto-Approve)', 'Auto-approved low risk remediation policy.');
+          return state;
+        }
+
         state.status = 'Awaiting Approval';
 
         this.logStep(state, {

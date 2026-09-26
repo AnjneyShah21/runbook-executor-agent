@@ -7,6 +7,9 @@ import { IncidentStatusBadge } from '@/components/incidents/IncidentStatusBadge'
 import { IncidentSeverityBadge } from '@/components/incidents/IncidentSeverityBadge';
 import { ExecutionTimeline } from '@/components/execution/ExecutionTimeline';
 import { ApprovalCard } from '@/components/approvals/ApprovalCard';
+import { BlastRadiusCard } from '@/components/approvals/BlastRadiusCard';
+import { TerminalLogTrace } from '@/components/execution/TerminalLogTrace';
+import { PostMortemExporter } from '@/components/execution/PostMortemExporter';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -170,8 +173,23 @@ export default function IncidentDetailsPage({ params }: { params: Promise<{ id: 
             )}
           </div>
 
+          {/* AI Blast Radius & Impact Predictor */}
+          <BlastRadiusCard blastRadius={incident.approvalRequest?.blastRadius} serviceName={incident.intake.serviceName} />
+
+          {/* Live Diagnostic Terminal Sandbox & Trace Replay */}
+          <div className="space-y-2">
+            <h3 className="font-bold text-sm text-slate-100 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
+              Live Diagnostic Terminal Sandbox & Trace Replay
+            </h3>
+            <TerminalLogTrace logs={incident.executionLogs} serviceName={incident.intake.serviceName} />
+          </div>
+
           {/* Visual Execution Timeline */}
           <ExecutionTimeline incident={incident} />
+
+          {/* Post-Mortem & Webhook Dispatcher */}
+          <PostMortemExporter incident={incident} />
         </div>
 
         {/* Right Col: Approval Card & Incident Specs */}

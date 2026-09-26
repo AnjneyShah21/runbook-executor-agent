@@ -74,6 +74,13 @@ export const INITIAL_MOCK_INCIDENTS: IncidentState[] = [
       proposedCommand: 'kill -15 4921 && sleep 2 && kill -9 4921',
       expectedImpact: 'Will terminate runaway worker thread PID 4921. Primary service listener pool remains active. CPU load expected to drop from 95% to < 20%.',
       riskLevel: 'HIGH',
+      blastRadius: {
+        riskScore: 78,
+        affectedUsersEstimate: 1420,
+        downtimeCostPerMin: 320,
+        affectedMicroservices: ['payment-service', 'checkout-api', 'billing-gateway'],
+        blastRadiusCategory: 'HIGH'
+      },
       status: 'PENDING',
       requestedAt: '2026-09-26T11:00:03.100Z'
     },
