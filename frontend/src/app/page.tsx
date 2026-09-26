@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -171,11 +171,11 @@ export default function FeaturesHomePage() {
 
   /**
    * Handle Sign Up Button Click:
-   * Triggers Google OAuth sign-in flow.
-   * On success, NextAuth redirects to /onboarding where designation is collected.
+   * Navigates to the dedicated /signup page where the user can register
+   * via Google OAuth or email, then proceeds to /onboarding for designation.
    */
-  const handleSignUp = async () => {
-    await signIn('google', { callbackUrl: '/onboarding' });
+  const handleSignUp = () => {
+    router.push('/signup');
   };
 
   return (
