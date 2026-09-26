@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { IncidentState } from '@/types/incident';
 import { IncidentService } from '@/services/incident-service';
 import { ApprovalCard } from '@/components/approvals/ApprovalCard';
-import { ShieldCheck, Clock, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
+import { ShieldCheck, Clock, CheckCircle2, RefreshCw } from 'lucide-react';
 
 export default function ApprovalCenterPage() {
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
@@ -18,7 +18,18 @@ export default function ApprovalCenterPage() {
   };
 
   useEffect(() => {
-    fetchApprovals();
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { incidents: data } = await IncidentService.getAllIncidents();
+      if (!active) return;
+      setIncidents(data);
+      setLoading(false);
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const pendingApprovals = incidents.filter(

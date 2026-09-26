@@ -2,7 +2,6 @@ import {
   IncidentState,
   IncidentIntakeInput,
   IncidentReport,
-  IncidentStatus,
   ApprovalRequest,
   ExecutionLogStep,
   StepStatus,
@@ -19,7 +18,7 @@ export class IncidentService {
    */
   static getMode(): 'auto' | 'live' | 'mock' {
     if (typeof window === 'undefined') return 'auto';
-    return (localStorage.getItem(MODE_KEY) as any) || 'auto';
+    return (localStorage.getItem(MODE_KEY) as 'auto' | 'live' | 'mock') || 'auto';
   }
 
   /**

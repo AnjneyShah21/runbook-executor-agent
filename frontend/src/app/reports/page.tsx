@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { IncidentState, IncidentReport } from '@/types/incident';
 import { IncidentService } from '@/services/incident-service';
-import { FileText, Download, CheckCircle2, ShieldCheck, Terminal, Clock, RefreshCw, Copy, Check } from 'lucide-react';
+import { FileText, Download, Terminal, RefreshCw, Copy, Check } from 'lucide-react';
 
 export default function ReportsPage() {
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
@@ -27,7 +27,24 @@ export default function ReportsPage() {
   };
 
   useEffect(() => {
-    fetchReportsList();
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { incidents: data } = await IncidentService.getAllIncidents();
+      if (!active) return;
+      setIncidents(data);
+      if (data.length > 0) {
+        const defaultId = data[0].incidentId;
+        setSelectedIncidentId(defaultId);
+        const { report: rep } = await IncidentService.getReport(defaultId);
+        if (active) setReport(rep);
+      }
+      if (active) setLoading(false);
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleSelectIncident = async (id: string) => {

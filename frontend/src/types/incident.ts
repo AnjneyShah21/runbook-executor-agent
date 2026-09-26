@@ -23,13 +23,13 @@ export interface IncidentIntakeInput {
   serviceName: string;
   severity: IncidentSeverity;
   environment: IncidentEnvironment;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface DiagnosticCheckResult {
   checkName: string;
   status: 'HEALTHY' | 'DEGRADED' | 'FAILED' | 'INFO';
-  metrics?: Record<string, any>;
+  metrics?: Record<string, unknown>;
   details: string;
   timestamp: string;
 }
@@ -65,8 +65,8 @@ export interface ExecutionLogStep {
   toolName?: string;
   type: 'DIAGNOSTIC' | 'HUMAN_APPROVAL' | 'REMEDIATION' | 'VERIFICATION';
   status: StepStatus;
-  inputParams?: Record<string, any>;
-  outputResult?: any;
+  inputParams?: Record<string, unknown>;
+  outputResult?: unknown;
   error?: string;
   timestamp: string;
   durationMs?: number;

@@ -24,7 +24,7 @@ interface TimelineStep {
   status: 'COMPLETED' | 'ACTIVE' | 'PENDING' | 'FAILED' | 'AWAITING_APPROVAL';
   logs?: ExecutionLogStep[];
   detail?: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
@@ -230,7 +230,7 @@ export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
                               <span className="font-bold text-indigo-400">{log.stepName}</span>
                               <span className="text-[10px] text-slate-500">{log.durationMs}ms</span>
                             </div>
-                            {log.outputResult && (
+                            {log.outputResult !== undefined && log.outputResult !== null && (
                               <pre className="text-[11px] text-slate-400 bg-slate-900/90 p-2 rounded overflow-x-auto border border-slate-800">
                                 {JSON.stringify(log.outputResult, null, 2)}
                               </pre>

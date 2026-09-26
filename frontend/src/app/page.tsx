@@ -8,7 +8,7 @@ import { SeverityDistribution } from '@/components/dashboard/SeverityDistributio
 import { RecentIncidentsTable } from '@/components/dashboard/RecentIncidentsTable';
 import { ApprovalCard } from '@/components/approvals/ApprovalCard';
 import Link from 'next/link';
-import { PlusCircle, ShieldAlert, Sparkles, RefreshCw } from 'lucide-react';
+import { PlusCircle, ShieldAlert, RefreshCw } from 'lucide-react';
 
 export default function DashboardPage() {
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
@@ -24,7 +24,19 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchDashboardData();
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { incidents: data, isLive: mode } = await IncidentService.getAllIncidents();
+      if (!active) return;
+      setIncidents(data);
+      setIsLive(mode);
+      setLoading(false);
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const pendingApprovalIncident = incidents.find((i) => i.status === 'Awaiting Approval');

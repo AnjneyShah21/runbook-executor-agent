@@ -25,25 +25,36 @@ export default function IncidentDetailsPage({ params }: { params: Promise<{ id: 
 
   const [incident, setIncident] = useState<IncidentState | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isLive, setIsLive] = useState(false);
 
   const fetchDetails = async () => {
     setLoading(true);
-    const { incident: data, isLive: mode } = await IncidentService.getIncidentById(incidentId);
+    const { incident: data } = await IncidentService.getIncidentById(incidentId);
     setIncident(data);
-    setIsLive(mode);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchDetails();
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { incident: data } = await IncidentService.getIncidentById(incidentId);
+      if (!active) return;
+      setIncident(data);
+      setLoading(false);
+    };
+    load();
 
-    // Auto poll status if processing
-    const interval = setInterval(() => {
-      fetchDetails();
+    const interval = setInterval(async () => {
+      const { incident: data } = await IncidentService.getIncidentById(incidentId);
+      if (active) {
+        setIncident(data);
+      }
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
   }, [incidentId]);
 
   if (loading && !incident) {
@@ -59,7 +70,7 @@ export default function IncidentDetailsPage({ params }: { params: Promise<{ id: 
     return (
       <div className="py-16 text-center space-y-4">
         <h2 className="text-lg font-bold text-slate-200">Incident Not Found</h2>
-        <p className="text-xs text-slate-400">Incident ID '{incidentId}' could not be retrieved.</p>
+        <p className="text-xs text-slate-400">Incident ID &apos;{incidentId}&apos; could not be retrieved.</p>
         <Link
           href="/incidents"
           className="inline-flex items-center gap-2 text-xs text-indigo-400 font-semibold hover:underline"
@@ -69,8 +80,6 @@ export default function IncidentDetailsPage({ params }: { params: Promise<{ id: 
       </div>
     );
   }
-
-  const isAwaitingApproval = incident.status === 'Awaiting Approval';
 
   return (
     <div className="space-y-8">

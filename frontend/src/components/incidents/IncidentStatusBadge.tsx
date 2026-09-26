@@ -6,7 +6,6 @@ import {
   RotateCw,
   XCircle,
   BrainCircuit,
-  Search,
   BookOpen,
 } from 'lucide-react';
 

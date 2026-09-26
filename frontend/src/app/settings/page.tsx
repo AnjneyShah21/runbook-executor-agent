@@ -5,13 +5,9 @@ import { IncidentService } from '@/services/incident-service';
 import { TrueForgeService } from '@/services/trueforge';
 import { AgentHealthResponse } from '@/types/incident';
 import {
-  ShieldCheck,
-  Server,
-  AlertCircle,
   RefreshCw,
   Sliders,
   Lock,
-  Cpu,
   CheckCircle2,
   XCircle,
 } from 'lucide-react';
@@ -42,7 +38,31 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    fetchStatus();
+    let active = true;
+    const load = async () => {
+      setChecking(true);
+      const startTime = performance.now();
+      const currentMode = IncidentService.getMode();
+      if (!active) return;
+      setMode(currentMode);
+
+      const res = await TrueForgeService.checkHealth();
+      const endTime = performance.now();
+
+      if (!active) return;
+      if (res) {
+        setHealth(res);
+        setPingMs(Math.round(endTime - startTime));
+      } else {
+        setHealth(null);
+        setPingMs(null);
+      }
+      setChecking(false);
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const handleModeChange = (newMode: 'auto' | 'live' | 'mock') => {

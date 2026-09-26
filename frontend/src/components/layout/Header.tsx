@@ -22,7 +22,22 @@ export function Header() {
   };
 
   useEffect(() => {
-    checkServerStatus();
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const live = await IncidentService.isLiveMode();
+      if (!active) return;
+      setIsLive(live);
+      if (live) {
+        const health = await TrueForgeService.checkHealth();
+        if (health?.agentId && active) setAgentId(health.agentId);
+      }
+      if (active) setLoading(false);
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   return (

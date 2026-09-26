@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { IncidentState, IncidentSeverity } from '@/types/incident';
+import { IncidentState } from '@/types/incident';
 import { IncidentService } from '@/services/incident-service';
 import { IncidentStatusBadge } from '@/components/incidents/IncidentStatusBadge';
 import { IncidentSeverityBadge } from '@/components/incidents/IncidentSeverityBadge';
@@ -23,7 +23,18 @@ export default function IncidentsListPage() {
   };
 
   useEffect(() => {
-    fetchIncidents();
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      const { incidents: data } = await IncidentService.getAllIncidents();
+      if (!active) return;
+      setIncidents(data);
+      setLoading(false);
+    };
+    load();
+    return () => {
+      active = false;
+    };
   }, []);
 
   const filteredIncidents = incidents.filter((inc) => {

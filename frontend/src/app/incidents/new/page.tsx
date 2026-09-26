@@ -89,8 +89,9 @@ export default function CreateIncidentPage() {
         setError('Failed to submit incident. Please check server configuration.');
         setSubmitting(false);
       }
-    } catch (err: any) {
-      setError(err.message || 'Unexpected error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unexpected error occurred.';
+      setError(msg);
       setSubmitting(false);
     }
   };

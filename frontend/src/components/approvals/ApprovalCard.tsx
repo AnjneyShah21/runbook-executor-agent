@@ -139,7 +139,7 @@ export function ApprovalCard({ incident, onDecisionSubmitted }: ApprovalCardProp
             </span>
             <span className="text-[10px] text-slate-500">{new Date(approval.respondedAt || '').toLocaleString()}</span>
           </div>
-          {approval.reason && <p className="text-slate-400 italic text-[11px]">"{approval.reason}"</p>}
+          {approval.reason && <p className="text-slate-400 italic text-[11px]">&quot;{approval.reason}&quot;</p>}
         </div>
       )}
 

@@ -23,12 +23,13 @@ export async function GET(
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       {
         success: false,
         error: 'TrueForge backend server unreachable',
-        details: error.message,
+        details: errMessage,
       },
       { status: 503 }
     );
@@ -56,12 +57,13 @@ export async function POST(
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json(
       {
         success: false,
         error: 'TrueForge backend server unreachable',
-        details: error.message,
+        details: errMessage,
       },
       { status: 503 }
     );
