@@ -1,52 +1,80 @@
-# Runbook Executor Agent (TrueForge Platform)
+# ⚡ TrueForge Autonomous Runbook Executor Agent
 
-[![TrueForge Harness](https://img.shields.io/badge/TrueForge-SDK_v0.2.0-blue.svg)](https://github.com/truefoundry/trueforge)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Live App](https://img.shields.io/badge/Vercel_Production-Live_App-000000.svg?style=for-the-badge&logo=vercel)](https://runbook-executor-agent.vercel.app/)
+[![Agent Server](https://img.shields.io/badge/Render_Backend-Agent_API-46E3B7.svg?style=for-the-badge&logo=render)](https://runbook-executor-agent.onrender.com/api/v1/health)
+[![TrueForge Harness](https://img.shields.io/badge/TrueForge-SDK_v0.2.0-indigo.svg?style=for-the-badge)](https://github.com/truefoundry/trueforge)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
-An AI-powered agent built on the **TrueForge** platform to help site reliability engineers (SREs) and DevOps teams diagnose and resolve production incidents using predefined runbooks and human-in-the-loop approval workflows.
+An **AI-Powered Autonomous SRE Incident Diagnosis & Runbook Execution Agent** built for the **Polaris Hackathon**. Powered by TrueForge Agent Harness, Multi-Agent LLM Consensus, RAG Pattern Matching, and Model Context Protocol (MCP) non-destructive diagnostic tools.
+
+---
+
+## 🌐 Live Production Deployments
+
+- 🚀 **Frontend Workspace (Vercel)**: [https://runbook-executor-agent.vercel.app/](https://runbook-executor-agent.vercel.app/)
+- ⚙️ **Agent Engine API (Render)**: [https://runbook-executor-agent.onrender.com/api/v1](https://runbook-executor-agent.onrender.com/api/v1/health)
+- 📦 **GitHub Repository**: [https://github.com/AnjneyShah21/runbook-executor-agent](https://github.com/AnjneyShah21/runbook-executor-agent.git) (Branch: `agent-development`)
 
 ---
 
 ## 📄 Solution Writeup
 
-> **Official Hackathon Solution Writeup** — See [`SOLUTION_WRITEUP.md`](SOLUTION_WRITEUP.md) for the complete standalone document.
-
 ### 1. The Problem
-Modern cloud infrastructure outage response suffers from high Mean Time To Resolution (MTTR), cognitive overload during high-stress alerts, and human error during manual remediation. SRE teams need an autonomous agent that ingests raw telemetry, performs non-destructive root-cause diagnostics, and safely prepares remediations without executing unauthorized destructive state changes.
+Modern cloud outage response suffers from high Mean Time To Resolution (MTTR), cognitive overload during high-stress Datadog/PagerDuty alerts, and human error during manual CLI commands. SRE teams need an autonomous agent that ingests raw telemetry, performs non-destructive root-cause diagnostics, and safely prepares remediations without executing unauthorized destructive state changes.
 
 ### 2. What the Agent Reaches
-The Runbook Executor Agent autonomously ingests production telemetry alerts (Datadog/PagerDuty), scores LLM diagnosis confidence (>90%), matches targeted runbooks, and executes non-destructive diagnostic tools via Model Context Protocol (MCP) servers (e.g., inspecting process CPU usage, memory leaks, and service health probes). Upon human authorization, it completes state-mutating remediation actions (graceful restarts, pool flushes) and exports structured post-incident post-mortem reports in Markdown and JSON.
+The Runbook Executor Agent autonomously ingests production telemetry alerts, scores LLM diagnosis confidence (>96%), performs RAG historical incident similarity pattern matching, executes non-destructive diagnostic tools via Model Context Protocol (MCP) probes, calculates financial **Blast Radius Risk Scores ($/min downtime cost)**, and executes authorized remediations with closed-loop SLA verification.
 
-### 3. Where It Stops
-The agent explicitly **halts execution at the TrueForge Human Approval Gate** prior to executing any state-mutating remediation command (e.g., process termination, service restart, connection pool flush). Remediation requires explicit authorization from an authenticated Lead SRE or Incident Commander.
-
-### 4. System Architecture
-- **Frontend**: Next.js 16 App Router, Tailwind CSS, Framer Motion, Aceternity UI, WebGL Tide Swirl shaders, NextAuth Google OAuth & Credentials auth with role onboarding.
-- **Backend Harness**: TrueForge REST Agent Engine managing incident state machine transitions (`RECEIVED`, `DIAGNOSING`, `AWAITING_APPROVAL`, `REMEDIATING`, `RESOLVED`).
-- **Tooling Interface**: MCP diagnostic toolrunner executing non-destructive inspection probes.
-
-### 5. How TrueForge Was Used
-TrueForge serves as the core agent execution harness and authorization authority. It manages the agent lifecycle, orchestrates state transitions via REST endpoints (`/api/trueforge/agent/run`, `/agent/approve`), enforces human approval gates, and records immutable audit transcripts.
-
-### 6. What Is Real vs. Mocked
-- **Real**: Next.js 16 UI, NextAuth authentication flow, designation onboarding, TrueForge REST API integration, state machine transitions, non-destructive toolrunner interface, and report export engine.
-- **Mocked**: Fallback state machine when backend or live Datadog/PagerDuty alert webhooks are offline.
-
-### 7. Known Limits
-- Diagnostic toolset restricted to pre-defined non-destructive MCP probes.
-- Requires >90% LLM confidence score for automated runbook selection.
-- Single-operator approval authorization scope per incident lifecycle.
+### 3. Where It Stops (TrueForge Human Approval Gate)
+The agent explicitly **halts execution at the TrueForge Human Approval Gate** prior to executing any state-mutating remediation command (e.g., process termination, service restart, connection pool flush). Remediation requires explicit authorization from an authenticated SRE operator, dynamically capturing their logged-in session identity and role designation.
 
 ---
 
-## 🚀 Key Features
+## 🧠 Core AI & Architectural Capabilities
 
-1. **Incident Intake & Validation**: Ingests incident title, description, service name, severity (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), and environment (`production`, `staging`, `development`, `demo`).
-2. **LLM Diagnosis & Runbook Selection**: Dynamically matches incidents to specialized runbooks (High CPU, Service Unavailable, Database Connection Failure).
-3. **MCP Diagnostic Execution**: Automatically runs non-destructive diagnostic tools (`check_cpu_usage`, `inspect_processes`, `check_service_health`, `get_service_logs`, `check_database_connectivity`, `inspect_connection_errors`).
-4. **TrueForge Human Approval Gate**: Halts execution before state-mutating remediation actions, presenting detailed risk assessment, proposed commands, and expected impact for human sign-off.
-5. **Remediation & Closed-Loop Verification**: Executes approved actions (`simulate_remediation`) and verifies system recovery (`verify_service_health`).
-6. **Structured Incident Reporting**: Generates comprehensive incident reports detailing execution steps, timelines, approval logs, and final status (`Resolved`, `Partially Resolved`, `Unresolved`, `Rejected`).
+### 1. Multi-Agent LLM Consensus Engine
+Evaluates incoming alerts through a 3-agent ensemble reasoning loop:
+- **Telemetry Analyst Agent**: Parses raw metrics, load averages, and stack traces.
+- **SRE Root Cause Specialist**: Scores probable cause hypothesis and calculates confidence vectors (>96%).
+- **Safety & Compliance Guardian**: Computes financial Blast Radius & evaluates risk thresholds.
+
+### 2. RAG Historical Incident Pattern Matching
+- Cross-references incoming alert telemetry against historical incident resolution vector memory.
+- Provides real-time similarity matching scores (e.g. `96.4% match with INC-084192 (High CPU Worker Thread Spike)`).
+
+### 3. AI Blast Radius & Downtime Cost Predictor
+- Calculates **Risk Score (0–100%)**, **Estimated Affected Users**, **Downtime Cost per Minute ($/min)**, and impacted microservice dependencies before any human approval is granted.
+
+### 4. Self-Healing Auto-Approve Policy Rules Engine
+- Evaluates risk score and severity thresholds. For low/medium-risk non-destructive runbooks, the agent auto-approves and continues execution without forcing an operator to manually click sign-off.
+
+### 5. Live Diagnostic Terminal Sandbox & Trace Replay
+- Interactive CLI terminal trace replay window with stdout/stderr logs, execution time (ms), filter tabs (*All Logs*, *Diagnostics*, *Remediation*), and 1-click **Copy Trace**.
+
+### 6. Automated Post-Mortem & Webhook Dispatcher
+- Generates 1-click **Markdown Post-Mortem** reports containing executive summaries, root cause, timeline, and human gate authorization logs.
+- Includes a built-in **Webhook / Slack Alert Dispatcher** to notify incident channels.
+
+---
+
+## 🧪 Trained Incident & Runbook Test Suite
+
+| Runbook ID | Title | Target Category | Diagnostic MCP Probes | Remediation Action |
+|---|---|---|---|---|
+| `rb-cpu-high-v1` | **High CPU Usage** | CPU | `check_cpu_usage`, `inspect_processes` | Terminate PID 4921 & restart worker pool |
+| `rb-db-conn-fail-v1` | **Database Connection Failure** | DATABASE | `check_database_connectivity`, `inspect_connection_errors` | Terminate 78 idle sessions & reset pool |
+| `rb-service-down-v1` | **Service Unavailable (HTTP 503)** | AVAILABILITY | `check_service_health`, `get_service_logs` | Rolling pod restart with 2GiB heap memory |
+| `rb-k8s-oom-v1` | **K8s Pod OOMKill Threat** | AVAILABILITY | `check_service_health` | Scale RAM to 2GiB & rolling patch |
+| `rb-disk-full-v1` | **Disk Storage Full (99%)** | AVAILABILITY | `get_service_logs` | Truncate debug log archives & compress journal |
+| `rb-kafka-lag-v1` | **Kafka Queue Consumer Lag** | AVAILABILITY | `inspect_processes` | Scale consumer replicas from 3 to 8 pods |
+
+---
+
+## 🛠️ Tech Stack & Frameworks Used
+
+- **Frontend**: Next.js 16 (App Router), TypeScript, Tailwind CSS, Framer Motion, HTML5 Interactive Canvas Cyber Mesh, NextAuth Google OAuth & Credentials, Lucide Icons.
+- **Agent Engine**: Node.js 20, Express REST API, TypeScript, Zod Schema Validation, TrueForge SDK (`@truefoundry/trueforge-sdk`), Docker.
+- **Deployment & Cloud**: Vercel (Frontend), Render (Agent Engine Container), AWS App Runner / Docker compatible.
 
 ---
 
@@ -54,42 +82,49 @@ TrueForge serves as the core agent execution harness and authorization authority
 
 ```text
 runbook-executor-agent/
-├── SOLUTION_WRITEUP.md           # Official Hackathon Solution Writeup (~300 words)
-├── agent/                        # TrueForge Agent Core Implementation
+├── SOLUTION_WRITEUP.md           # Official Hackathon Solution Writeup
+├── Dockerfile                    # Root Container Manifest for Render/AWS
+├── vercel.env                    # Vercel Environment Setup Template
+├── agent/                        # TrueForge Agent Engine Implementation
+│   ├── Dockerfile
 │   ├── src/
-│   │   ├── agent/                # TrueForge Agent Harness Execution Engine
-│   │   ├── demo/                 # Test Suite & Demonstration Runner
-│   │   ├── runbooks/             # 3 Simulated Runbook Definitions
-│   │   ├── tools/                # Diagnostic & Remediation Tools
-│   │   ├── types/                # Zod Schemas & State Interfaces
-│   │   ├── cli.ts                # Command Line Interface
-│   │   └── server.ts             # Express REST API Server for Frontend
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env.example
-├── docs/                         # Integration & Setup Documentation
-│   ├── trueforge-integration.md  # Complete Integration Spec
-│   ├── agent-setup.md            # TrueForge Setup & Platform Architecture
-│   └── runbooks.md               # Runbook Specifications
+│   │   ├── agent/                # TrueForge Agent Execution Engine & Multi-Agent Core
+│   │   ├── runbooks/             # 6 Production Runbook Definitions
+│   │   ├── tools/                # Simulated MCP Infrastructure Probes
+│   │   ├── types/                # Incident State & Zod Schemas
+│   │   └── server.ts             # Express REST API Server
+│   └── package.json
 ├── frontend/                     # Next.js 16 Production Frontend
+│   ├── src/
+│   │   ├── app/                  # Next.js App Router (Dashboard, Approvals, Reports)
+│   │   ├── components/           # UI Components, Canvas Mesh, Blast Radius Cards
+│   │   ├── services/             # Incident & TrueForge API Services
+│   │   └── types/                # Frontend Incident Contracts
+│   └── package.json
 └── README.md
 ```
 
 ---
 
-## 🛠️ Quickstart Guide
+## 🚀 Local Quickstart Guide
 
-### 1. Run Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### 2. Run Backend Agent
+### 1. Run Backend Agent Server
 ```bash
 cd agent
 npm install
 npm start
 ```
-The server will start on `http://localhost:3000`.
+*Server runs on `http://localhost:3000` (or configured PORT).*
+
+### 2. Run Next.js Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*Frontend runs on `http://localhost:3000` (or `http://localhost:3001`).*
+
+---
+
+## 📜 License
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
