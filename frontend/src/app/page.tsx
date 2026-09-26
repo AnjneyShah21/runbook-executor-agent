@@ -152,34 +152,30 @@ export default function FeaturesHomePage() {
 
   /**
    * Handle Log In Button Click:
-   * Checked against stored user credentials/designation in database/localStorage.
-   * If credentials exist, opens SRE Operational Workspace (/dashboard).
+   * If user already has a saved designation (i.e., previously onboarded), go to dashboard.
+   * Otherwise send them to the sign-in page — they must authenticate first.
    */
-  const handleLogIn = async () => {
+  const handleLogIn = () => {
     const savedDesignation = getStoredDesignation();
-    if (session || savedDesignation) {
+    if (session && savedDesignation) {
+      // Fully authenticated + onboarded → go straight to dashboard
       router.push('/dashboard');
+    } else if (session && !savedDesignation) {
+      // Authenticated but never set designation → force onboarding
+      router.push('/onboarding');
     } else {
-      // Trigger login & navigate to dashboard
-      localStorage.setItem('sre_user_designation', 'Lead SRE');
-      await signIn('credentials', { email: 'sre.operator@example.com', callbackUrl: '/dashboard', redirect: false });
-      router.push('/dashboard');
+      // Not authenticated → go to sign-in page
+      router.push('/signin');
     }
   };
 
   /**
    * Handle Sign Up Button Click:
-   * Leads user to Google Auth page / Sign Up flow.
-   * When auth is successful, it leads to Designation setup page (/onboarding).
+   * Triggers Google OAuth sign-in flow.
+   * On success, NextAuth redirects to /onboarding where designation is collected.
    */
   const handleSignUp = async () => {
-    // If Google Client ID is configured, trigger Google OAuth, else trigger onboarding setup
-    if (process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true') {
-      await signIn('google', { callbackUrl: '/onboarding' });
-    } else {
-      // Direct Google Auth Sign-Up Simulation -> leads to Onboarding Designation Setup
-      router.push('/onboarding');
-    }
+    await signIn('google', { callbackUrl: '/onboarding' });
   };
 
   return (

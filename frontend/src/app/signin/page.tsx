@@ -13,27 +13,42 @@ export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    if (process.env.NEXT_PUBLIC_GOOGLE_AUTH === 'true') {
-      await signIn('google', { callbackUrl: '/onboarding' });
-    } else {
-      router.push('/onboarding');
-    }
+    // Always use Google OAuth — never bypass with a redirect
+    await signIn('google', { callbackUrl: '/onboarding' });
   };
 
   const handleCredentialsSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    if (!email.trim()) {
+      setError('Please enter your email address.');
+      return;
+    }
     setLoading(true);
-    const targetEmail = email.trim() || 'sre.operator@example.com';
-    await signIn('credentials', {
-      email: targetEmail,
-      password: password || 'demo123',
+    const result = await signIn('credentials', {
+      email: email.trim(),
+      password: password,
       redirect: false,
     });
-    localStorage.setItem('sre_user_designation', 'Lead SRE');
-    router.push('/dashboard');
+
+    if (result?.error) {
+      setError('Sign-in failed. Please check your credentials.');
+      setLoading(false);
+      return;
+    }
+
+    // Check if user has completed onboarding before
+    const savedDesignation = typeof window !== 'undefined' ? localStorage.getItem('sre_user_designation') : null;
+    if (savedDesignation) {
+      router.push('/dashboard');
+    } else {
+      // New or incomplete user — must set designation first
+      router.push('/onboarding');
+    }
   };
 
   return (
@@ -107,14 +122,20 @@ export default function SignInPage() {
               className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 font-medium"
             />
           </div>
+          {error && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all"
+            className="w-full bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <LogIn className="w-4 h-4" />
-            <span>Log In to Dashboard</span>
+            <span>{loading ? 'Signing In...' : 'Log In to Dashboard'}</span>
           </button>
         </form>
       </motion.div>

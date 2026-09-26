@@ -8,8 +8,8 @@ import { Header } from '@/components/layout/Header';
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Hide Sidebar and Global Header completely on Homepage (/), Sign In (/signin), and Sign Up (/signup)
-  const isHomepageOrAuth = pathname === '/' || pathname === '/signin' || pathname === '/signup';
+  // Hide Sidebar and Global Header completely on Homepage (/), Sign In (/signin), Sign Up (/signup), and Onboarding (/onboarding)
+  const isHomepageOrAuth = pathname === '/' || pathname === '/signin' || pathname === '/signup' || pathname === '/onboarding';
 
   if (isHomepageOrAuth) {
     return (
