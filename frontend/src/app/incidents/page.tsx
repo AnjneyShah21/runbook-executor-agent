@@ -53,7 +53,7 @@ export default function IncidentsListPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-10">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div>
@@ -130,18 +130,18 @@ export default function IncidentsListPage() {
       </div>
 
       {/* Directory Table */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900/80 backdrop-blur-md overflow-hidden">
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md overflow-hidden glass-card">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[700px]">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider text-[10px] bg-slate-950/60">
-                <th className="py-3 px-4">Incident ID</th>
+              <tr className="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[10px] bg-slate-950/60">
+                <th className="py-3 px-4 whitespace-nowrap">Incident ID</th>
                 <th className="py-3 px-4">Title & Context</th>
-                <th className="py-3 px-4">Service</th>
-                <th className="py-3 px-4">Severity</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Runbook</th>
-                <th className="py-3 px-4 text-right">Details</th>
+                <th className="py-3 px-4 whitespace-nowrap">Service</th>
+                <th className="py-3 px-4 whitespace-nowrap">Severity</th>
+                <th className="py-3 px-4 whitespace-nowrap">Status</th>
+                <th className="py-3 px-4 whitespace-nowrap">Runbook</th>
+                <th className="py-3 px-4 text-right whitespace-nowrap">Details</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
@@ -154,36 +154,36 @@ export default function IncidentsListPage() {
               ) : (
                 filteredIncidents.map((inc) => (
                   <tr key={inc.incidentId} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="py-3.5 px-4 font-mono font-bold text-indigo-400">
+                    <td className="py-3.5 px-4 font-mono font-extrabold text-indigo-400 whitespace-nowrap">
                       <Link href={`/incidents/${inc.incidentId}`} className="hover:underline">
                         {inc.incidentId}
                       </Link>
                     </td>
                     <td className="py-3.5 px-4">
-                      <p className="font-semibold text-slate-200">{inc.intake.title}</p>
+                      <p className="font-bold text-slate-100">{inc.intake.title}</p>
                       <p className="text-[11px] text-slate-400 truncate max-w-xs">{inc.intake.description}</p>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <span className="font-mono bg-slate-950 px-2 py-0.5 rounded border border-slate-800 text-slate-300">
                         {inc.intake.serviceName}
                       </span>
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <IncidentSeverityBadge severity={inc.intake.severity} />
                     </td>
-                    <td className="py-3.5 px-4">
+                    <td className="py-3.5 px-4 whitespace-nowrap">
                       <IncidentStatusBadge status={inc.status} />
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-300">
+                    <td className="py-3.5 px-4 font-mono text-slate-300 whitespace-nowrap">
                       {inc.selectedRunbook?.title || 'Matching...'}
                     </td>
-                    <td className="py-3.5 px-4 text-right">
+                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
                       <Link
                         href={`/incidents/${inc.incidentId}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600 hover:text-white text-indigo-400 font-semibold border border-indigo-500/30 transition-all"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600/15 hover:bg-indigo-600 hover:text-white text-indigo-300 font-semibold border border-indigo-500/30 transition-all"
                       >
                         <span>Inspect</span>
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                       </Link>
                     </td>
                   </tr>
