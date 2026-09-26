@@ -2,65 +2,61 @@
 
 ## Overview
 
-TrueForge is an open-source agent harness developed by TrueFoundry designed to manage agent execution loops, model orchestration, MCP tool calls, sandboxing, session state, and human-in-the-loop governance.
+**TrueForge** is an open-source agent harness developed by **TrueFoundry** designed to manage agent execution loops, model orchestration, MCP tool calls, sandboxing, session state, and human-in-the-loop governance.
 
-This guide details the setup, platform requirements, tool definitions, and workflow execution model for the **Runbook Executor Agent**.
+---
 
-## System Requirements
+## Official Organizer Setup Instructions (Polaris Hackathon)
 
-- **Node.js**: v18.0.0 or higher (v24+ recommended)
-- **Package Manager**: npm 10+ or yarn
-- **TypeScript**: v5.0+
-- **TrueForge SDK**: `@truefoundry/trueforge-sdk` v0.2.0
+### Step 1: Install & Launch TrueForge Local Harness
+Run the official TrueForge harness runner:
+```bash
+npx @truefoundry/trueforge
+```
 
-## Installation Instructions
+### Step 2: Access TrueForge UI & Harness Server
+Once launched, TrueForge runs locally at:
+👉 **`http://localhost:8790`**
 
-1. Navigate to the agent directory:
-   ```bash
-   cd agent
-   ```
+### Step 3: Configure LLM Models & OpenAI API Key
+Set your OpenAI API key in your environment:
+- **Windows (PowerShell)**: `$env:OPENAI_API_KEY="your_api_key_here"`
+- **Linux / Mac**: `export OPENAI_API_KEY="your_api_key_here"`
 
-2. Install official dependencies:
-   ```bash
-   npm install
-   ```
+Inside the TrueForge UI (`http://localhost:8790`):
+1. Select your preferred model (e.g. OpenAI `gpt-4o` or `gpt-4o-mini`).
+2. Connect required MCP (Model Context Protocol) servers.
+3. Select/add tools for incident diagnosis and remediation.
 
-3. Verify environment configuration:
-   Copy `.env.example` to `.env` if custom port or API keys are required.
+### Step 4: AWS Credits & Setup
+- **AWS Credit Code**: `PC3GIMNWS6QKT7R`
+- **AWS Builder Center**: [builder.aws.com/start](https://builder.aws.com/start/)
 
-4. Start the server:
-   ```bash
-   npm start
-   ```
-
-5. Run test suite:
-   ```bash
-   npm run demo
-   ```
+---
 
 ## Agent Architecture & Execution Loop
 
 ```
-  [Incident Intake]
+  [Incident Intake] (Webhooks / API)
           │
           ▼
-   [Diagnosis & LLM Analysis]
+   [TrueForge LLM Diagnosis] (OpenAI / TrueFoundry Gateway)
           │
           ▼
- [Runbook Selection Registry]
+ [Runbook Selection Registry] (High CPU, Service Unavailable, DB Exhaustion)
           │
           ▼
-[Diagnostic Tool Execution] (check_cpu_usage, inspect_processes, etc.)
+[Diagnostic Tool Execution] (MCP / Simulated Tools)
           │
           ▼
- [Human Approval Gate] ─── (State Paused: Awaiting Approval)
+ [TrueForge Human Approval Gate] ─── (State Paused: Awaiting Approval)
           │
     ┌─────┴─────┐
     ▼           ▼
 [Approved]  [Rejected] ──► Status: Rejected (Execution Terminated)
     │
     ▼
-[Remediation Tool Execution] (simulate_remediation)
+[Remediation Tool Execution] (simulate_remediation / K8s / AWS)
           │
           ▼
 [Closed-Loop Verification] (verify_service_health)
