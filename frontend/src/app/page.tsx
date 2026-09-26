@@ -162,7 +162,7 @@ export default function FeaturesHomePage() {
     } else {
       // Trigger login & navigate to dashboard
       localStorage.setItem('sre_user_designation', 'Lead SRE');
-      await signIn('credentials', { email: 'arkodeepbr10260@gmail.com', callbackUrl: '/dashboard', redirect: false });
+      await signIn('credentials', { email: 'sre.operator@example.com', callbackUrl: '/dashboard', redirect: false });
       router.push('/dashboard');
     }
   };

@@ -15,14 +15,14 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'email', placeholder: 'arkodeepbr10260@gmail.com' },
+        email: { label: 'Email', type: 'email', placeholder: 'sre.operator@example.com' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email) return null;
         return {
           id: 'sre-user-1',
-          name: credentials.email.split('@')[0] || 'Arkodeep',
+          name: credentials.email.split('@')[0] || 'SRE Operator',
           email: credentials.email,
           image: `https://api.dicebear.com/7.x/bottts/svg?seed=${credentials.email}`,
         };

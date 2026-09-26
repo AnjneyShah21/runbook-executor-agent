@@ -43,8 +43,8 @@ export function Header() {
     };
   }, []);
 
-  const userName = session?.user?.name || 'Arkodeep';
-  const userEmail = session?.user?.email || 'arkodeepbr10260@gmail.com';
+  const userName = session?.user?.name || 'SRE Operator';
+  const userEmail = session?.user?.email || 'sre.operator@example.com';
   const userAvatar = session?.user?.image || `https://api.dicebear.com/7.x/bottts/svg?seed=${userEmail}`;
 
   return (
