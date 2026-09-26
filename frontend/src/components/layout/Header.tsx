@@ -112,7 +112,7 @@ export function Header() {
 
           {session ? (
             <button
-              onClick={() => signOut({ callbackUrl: '/signin' })}
+              onClick={() => signOut({ callbackUrl: '/' })}
               className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition-colors"
               title="Sign Out"
             >
