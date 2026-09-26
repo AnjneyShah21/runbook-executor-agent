@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { IncidentService } from '@/services/incident-service';
 import { TrueForgeService } from '@/services/trueforge';
-import { ShieldCheck, Server, AlertCircle, RefreshCw } from 'lucide-react';
+import { ShieldCheck, AlertCircle, RefreshCw, LogOut, UserCheck } from 'lucide-react';
 
 export function Header() {
+  const { data: session } = useSession();
   const [isLive, setIsLive] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [agentId, setAgentId] = useState<string>('tf-agent-runbook-executor-v1');
@@ -40,12 +43,16 @@ export function Header() {
     };
   }, []);
 
+  const userName = session?.user?.name || 'Arkodeep';
+  const userEmail = session?.user?.email || 'arkodeepbr10260@gmail.com';
+  const userAvatar = session?.user?.image || `https://api.dicebear.com/7.x/bottts/svg?seed=${userEmail}`;
+
   return (
     <header className="h-16 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
       {/* Search / Context */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-slate-300 text-xs font-mono">
-          <Server className="w-3.5 h-3.5 text-indigo-400" />
+          <UserCheck className="w-3.5 h-3.5 text-indigo-400" />
           <span>Agent ID:</span>
           <span className="text-slate-100 font-semibold">{agentId}</span>
         </div>
@@ -75,15 +82,37 @@ export function Header() {
           <span>{loading ? 'Checking...' : isLive ? 'TrueForge Live' : 'Demo Mode (Mock)'}</span>
         </button>
 
-        {/* User Info */}
+        {/* User Account Session Info */}
         <div className="flex items-center gap-3 border-l border-slate-800 pl-4">
-          <div className="w-8 h-8 rounded-full bg-slate-800 border border-indigo-500/40 flex items-center justify-center font-bold text-xs text-indigo-400">
-            SRE
+          <div className="w-8 h-8 rounded-full bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center font-bold text-xs text-indigo-300 overflow-hidden">
+            {userAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
+            ) : (
+              userName.substring(0, 2).toUpperCase()
+            )}
           </div>
           <div className="text-left hidden sm:block">
-            <p className="text-xs font-semibold text-slate-200">On-Call Operator</p>
-            <p className="text-[10px] text-slate-400">Primary Incident Lead</p>
+            <p className="text-xs font-bold text-slate-100">{userName}</p>
+            <p className="text-[10px] text-slate-400 font-mono truncate max-w-[120px]">{userEmail}</p>
           </div>
+
+          {session ? (
+            <button
+              onClick={() => signOut({ callbackUrl: '/signin' })}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 text-slate-400 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <Link
+              href="/signin"
+              className="text-xs font-bold px-2.5 py-1 rounded bg-indigo-600/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600 hover:text-white transition-all"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </div>
     </header>

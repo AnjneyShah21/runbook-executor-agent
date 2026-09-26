@@ -9,26 +9,32 @@ import {
   FileText,
   Settings,
   PlusCircle,
-  Activity,
   Cpu,
+  Home,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { label: 'Incidents', href: '/incidents', icon: AlertTriangle },
+  { label: 'Home Overview', href: '/', icon: Home },
+  { label: 'SRE Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Incidents Directory', href: '/incidents', icon: AlertTriangle },
   { label: 'Approval Center', href: '/approvals', icon: ShieldCheck, badgeKey: 'approvals' },
-  { label: 'Reports', href: '/reports', icon: FileText },
+  { label: 'Reports & Export', href: '/reports', icon: FileText },
   { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export function Sidebar({ pendingApprovalsCount = 1 }: { pendingApprovalsCount?: number }) {
   const pathname = usePathname();
 
+  // Hide sidebar on clean auth/onboarding pages
+  if (pathname === '/signin' || pathname === '/signup' || pathname === '/onboarding') {
+    return null;
+  }
+
   return (
     <aside className="w-64 bg-slate-900/90 border-r border-slate-800/80 flex flex-col justify-between shrink-0 min-h-screen">
       <div>
         {/* Brand Header */}
-        <div className="p-5 border-b border-slate-800/80 flex items-center gap-3">
+        <Link href="/" className="p-5 border-b border-slate-800/80 flex items-center gap-3 hover:bg-slate-800/40 transition-colors">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-indigo-500/20">
             <Cpu className="w-5 h-5 text-white" />
           </div>
@@ -36,7 +42,7 @@ export function Sidebar({ pendingApprovalsCount = 1 }: { pendingApprovalsCount?:
             <h1 className="font-bold text-slate-100 text-sm tracking-wide">RUNBOOK AGENT</h1>
             <p className="text-xs text-slate-400 font-medium">TrueForge Platform</p>
           </div>
-        </div>
+        </Link>
 
         {/* Action Button */}
         <div className="px-4 pt-5 pb-3">
@@ -87,13 +93,11 @@ export function Sidebar({ pendingApprovalsCount = 1 }: { pendingApprovalsCount?:
       <div className="p-4 border-t border-slate-800/80 bg-slate-950/40">
         <div className="flex items-center gap-3">
           <div className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-200 flex items-center gap-1">
-              <Activity className="w-3 h-3 text-emerald-400 inline" /> TrueForge v0.2.0
-            </p>
+            <p className="text-xs font-semibold text-slate-200">TrueForge v0.2.0</p>
             <p className="text-[11px] text-slate-500">Agent Harness Active</p>
           </div>
         </div>
