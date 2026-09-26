@@ -8,8 +8,11 @@ import { StatsCards } from '@/components/dashboard/StatsCards';
 import { SeverityDistribution } from '@/components/dashboard/SeverityDistribution';
 import { RecentIncidentsTable } from '@/components/dashboard/RecentIncidentsTable';
 import { ApprovalCard } from '@/components/approvals/ApprovalCard';
+import { BackgroundBeams } from '@/components/aceternity/BackgroundBeams';
+import { InteractiveBentoGrid } from '@/components/aceternity/InteractiveBentoGrid';
+import { SpotlightCard } from '@/components/aceternity/SpotlightCard';
 import Link from 'next/link';
-import { PlusCircle, ShieldAlert, RefreshCw, Zap, ArrowRight, Filter } from 'lucide-react';
+import { PlusCircle, ShieldAlert, RefreshCw, Zap, ArrowRight, Filter, Sparkles, CheckCircle2 } from 'lucide-react';
 
 const CATEGORY_PILLS = [
   { id: 'ALL', label: 'All Incidents' },
@@ -60,47 +63,62 @@ export default function DashboardPage() {
   const pendingApprovalIncident = incidents.find((i) => i.status === 'Awaiting Approval');
 
   return (
-    <div className="space-y-10 pb-10">
-      {/* Scrolltide Hero Banner */}
+    <div className="relative space-y-12 pb-16">
+      {/* Aceternity Background Beams */}
+      <BackgroundBeams />
+
+      {/* Hero Banner with Glassmorphic Spotlight Glow */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-900/90 via-indigo-950/40 to-slate-900/90 p-8 lg:p-10 glass-card glow-indigo"
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-r from-slate-950/90 via-indigo-950/40 to-slate-950/90 p-8 lg:p-12 backdrop-blur-2xl shadow-2xl shadow-indigo-500/10"
       >
-        {/* Ambient background glow accents */}
-        <div className="absolute -top-24 -left-24 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-3 max-w-2xl">
+          <div className="space-y-4 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-              <Zap className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
               <span>TrueForge Agent Harness v0.2.0 • Autonomous SRE Ops</span>
             </div>
 
-            <h1 className="text-3xl lg:text-4xl font-black text-slate-100 tracking-tight leading-tight">
+            <h1 className="text-3xl lg:text-5xl font-black text-white tracking-tight leading-tight">
               Automated Incident Diagnosis & Runbook Remediation
             </h1>
 
             <p className="text-xs lg:text-sm text-slate-300 leading-relaxed font-normal">
               Continuous telemetry ingestion, LLM root cause analysis, non-destructive MCP diagnostics, and human-in-the-loop authorization gate.
             </p>
+
+            <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-2">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>3 Simulated Runbooks</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Human-in-the-Loop Gate</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Closed-Loop Verification</span>
+              </div>
+            </div>
           </div>
 
           {/* Hero CTAs */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             <Link
               href="/incidents/new"
-              className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all duration-200"
+              className="group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 px-6 py-4 text-xs font-bold text-white shadow-xl shadow-indigo-600/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-indigo-500/50 active:scale-[0.98]"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Report Production Incident</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
 
             <button
               onClick={fetchDashboardData}
-              className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-700/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+              className="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:bg-slate-800 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
               title="Refresh Telemetry Data"
             >
               <RefreshCw className={`w-4 h-4 text-indigo-400 ${loading ? 'animate-spin' : ''}`} />
@@ -110,7 +128,7 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Scrolltide Category Filter Pills (Inspired by Scrolltide Library Header) */}
+      {/* Category Filter Pills */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-300 uppercase tracking-wider">
@@ -148,28 +166,30 @@ export default function DashboardPage() {
           transition={{ duration: 0.4 }}
           className="space-y-4"
         >
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-extrabold text-amber-400 uppercase tracking-wider flex items-center gap-2">
-              <ShieldAlert className="w-4.5 h-4.5 animate-bounce" /> Attention Required: Human Approval Gate Paused
-            </h2>
-            <Link
-              href="/approvals"
-              className="text-xs text-amber-400 hover:underline font-bold flex items-center gap-1"
-            >
-              <span>View Approval Center</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+          <div className="flex items-center justify-between px-1">
+            <div className="flex items-center gap-2 text-rose-400 font-bold text-sm tracking-wide uppercase">
+              <ShieldAlert className="w-5 h-5 animate-pulse" />
+              <span>TrueForge Gate Action Required</span>
+            </div>
+            <span className="text-xs text-slate-400 font-mono">Incident ID: {pendingApprovalIncident.incidentId}</span>
           </div>
-          <ApprovalCard incident={pendingApprovalIncident} onDecisionSubmitted={fetchDashboardData} />
+
+          <ApprovalCard
+            incident={pendingApprovalIncident}
+            onDecisionSubmitted={fetchDashboardData}
+          />
         </motion.div>
       )}
 
-      {/* Main Grid Content */}
+      {/* Aceternity Interactive Bento Grid */}
+      <InteractiveBentoGrid />
+
+      {/* Analytics & Table Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <RecentIncidentsTable incidents={filteredIncidents} />
         </div>
-        <div>
+        <div className="lg:col-span-1">
           <SeverityDistribution incidents={incidents} />
         </div>
       </div>
