@@ -44,6 +44,33 @@ const SCENARIOS = [
     severity: 'CRITICAL' as IncidentSeverity,
     environment: 'production' as IncidentEnvironment,
   },
+  {
+    name: 'K8s OOMKill Threat',
+    icon: Cpu,
+    title: 'Kubernetes Pod OOMKilled Memory Leak on auth-service',
+    description: 'Pod memory RSS exceeded cgroup quota (512MiB/512MiB). Container restarted 14 times in 1 hour.',
+    serviceName: 'auth-service',
+    severity: 'HIGH' as IncidentSeverity,
+    environment: 'production' as IncidentEnvironment,
+  },
+  {
+    name: 'Disk Storage Full',
+    icon: Server,
+    title: 'Disk Storage Volume Saturation (99%) on logging-node-01',
+    description: 'Mounted block storage /var/log reached 99.4% disk capacity. Log rotate process stuck.',
+    serviceName: 'logging-node-01',
+    severity: 'MEDIUM' as IncidentSeverity,
+    environment: 'production' as IncidentEnvironment,
+  },
+  {
+    name: 'Kafka Queue Lag',
+    icon: Database,
+    title: 'Kafka Message Queue Backpressure & Consumer Lag spike',
+    description: 'Consumer group analytics-worker lag surpassed 58,000 unread partition messages.',
+    serviceName: 'analytics-worker',
+    severity: 'HIGH' as IncidentSeverity,
+    environment: 'production' as IncidentEnvironment,
+  },
 ];
 
 export default function CreateIncidentPage() {

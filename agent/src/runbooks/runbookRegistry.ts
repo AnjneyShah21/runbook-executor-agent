@@ -149,6 +149,108 @@ export const RUNBOOK_REGISTRY: Record<string, Runbook> = {
         requiresApproval: false
       }
     ]
+  },
+
+  'rb-k8s-oom-v1': {
+    runbookId: 'rb-k8s-oom-v1',
+    title: 'Kubernetes Pod OOMKill & Memory Leak Runbook',
+    targetCategory: 'AVAILABILITY',
+    description: 'Inspects heap dump dumps, detects memory leaks in pod worker containers, and increases RAM resource limits.',
+    steps: [
+      {
+        stepId: 'step-1-mem-check',
+        stepName: 'Inspect Pod Memory (check_service_health)',
+        type: 'DIAGNOSTIC',
+        toolName: 'check_service_health',
+        description: 'Queries cgroup memory RSS utilization and restart count.',
+        requiresApproval: false
+      },
+      {
+        stepId: 'step-2-human-gate',
+        stepName: 'Human Approval Gate - Rescale RAM Allocation',
+        type: 'HUMAN_APPROVAL',
+        description: 'Requests authorization to scale memory resource requests from 512MiB to 2GiB.',
+        requiresApproval: true,
+        proposedActionName: 'Expand K8s Memory Limit to 2GiB & Trigger Rolling Patch',
+        expectedImpactDescription: 'Prevents imminent OOMKilled pod crash loops. Zero downtime rolling update.'
+      },
+      {
+        stepId: 'step-3-remediation',
+        stepName: 'Execute Rolling Patch (simulate_remediation)',
+        type: 'REMEDIATION',
+        toolName: 'simulate_remediation',
+        description: 'Applies patch deployment manifest with updated memory request values.',
+        requiresApproval: false
+      }
+    ]
+  },
+
+  'rb-disk-full-v1': {
+    runbookId: 'rb-disk-full-v1',
+    title: 'Disk Storage Exhaustion & Log Purge Runbook',
+    targetCategory: 'AVAILABILITY',
+    description: 'Diagnoses /var/log volume saturation (>98%) and purges stale archived debug logs.',
+    steps: [
+      {
+        stepId: 'step-1-disk-check',
+        stepName: 'Inspect Volume Utilization (get_service_logs)',
+        type: 'DIAGNOSTIC',
+        toolName: 'get_service_logs',
+        description: 'Checks df -h disk usage across mounted volume blocks.',
+        requiresApproval: false
+      },
+      {
+        stepId: 'step-2-human-gate',
+        stepName: 'Human Approval Gate - Purge Archived Logs',
+        type: 'HUMAN_APPROVAL',
+        description: 'Requests authorization to truncate debug log archives older than 7 days.',
+        requiresApproval: true,
+        proposedActionName: 'Purge /var/log Debug Archives & Compress Journal Logs',
+        expectedImpactDescription: 'Frees 45GB of disk space on mounted volume block. Restores write I/O performance.'
+      },
+      {
+        stepId: 'step-3-remediation',
+        stepName: 'Execute Log Purge (simulate_remediation)',
+        type: 'REMEDIATION',
+        toolName: 'simulate_remediation',
+        description: 'Executes journalctl --vacuum-time=3d and logrotate compression.',
+        requiresApproval: false
+      }
+    ]
+  },
+
+  'rb-kafka-lag-v1': {
+    runbookId: 'rb-kafka-lag-v1',
+    title: 'Message Queue Consumer Lag & Backpressure Runbook',
+    targetCategory: 'AVAILABILITY',
+    description: 'Detects consumer group offset lag (>50,000 unread messages) and scales out consumer worker pods.',
+    steps: [
+      {
+        stepId: 'step-1-lag-check',
+        stepName: 'Inspect Consumer Group Lag (inspect_processes)',
+        type: 'DIAGNOSTIC',
+        toolName: 'inspect_processes',
+        description: 'Checks Kafka broker consumer lag metrics per partition.',
+        requiresApproval: false
+      },
+      {
+        stepId: 'step-2-human-gate',
+        stepName: 'Human Approval Gate - Scale Consumer Replicas',
+        type: 'HUMAN_APPROVAL',
+        description: 'Requests authorization to scale out consumer group deployment from 3 to 8 pods.',
+        requiresApproval: true,
+        proposedActionName: 'Scale Out Consumer Pod Replicas (3 -> 8 Pods)',
+        expectedImpactDescription: 'Drains unread message queue backpressure within 3 minutes.'
+      },
+      {
+        stepId: 'step-3-remediation',
+        stepName: 'Execute Replica Scaling (simulate_remediation)',
+        type: 'REMEDIATION',
+        toolName: 'simulate_remediation',
+        description: 'Executes kubectl scale deployment consumer-worker --replicas=8.',
+        requiresApproval: false
+      }
+    ]
   }
 };
 
@@ -162,11 +264,23 @@ export function selectRunbookForIncident(title: string, description: string): Ru
     return RUNBOOK_REGISTRY['rb-cpu-high-v1'];
   }
 
-  if (text.includes('database') || text.includes('db') || text.includes('connection') || text.includes('postgres') || text.includes('pool')) {
+  if (text.includes('database') || text.includes('db') || text.includes('connection') || text.includes('postgres') || text.includes('pool') || text.includes('sql')) {
     return RUNBOOK_REGISTRY['rb-db-conn-fail-v1'];
   }
 
-  if (text.includes('unavailable') || text.includes('down') || text.includes('503') || text.includes('500') || text.includes('health') || text.includes('crash') || text.includes('out of memory') || text.includes('oom')) {
+  if (text.includes('memory') || text.includes('oom') || text.includes('heap') || text.includes('leak') || text.includes('k8s')) {
+    return RUNBOOK_REGISTRY['rb-k8s-oom-v1'];
+  }
+
+  if (text.includes('disk') || text.includes('storage') || text.includes('volume') || text.includes('log') || text.includes('full')) {
+    return RUNBOOK_REGISTRY['rb-disk-full-v1'];
+  }
+
+  if (text.includes('kafka') || text.includes('queue') || text.includes('lag') || text.includes('consumer') || text.includes('backpressure')) {
+    return RUNBOOK_REGISTRY['rb-kafka-lag-v1'];
+  }
+
+  if (text.includes('unavailable') || text.includes('down') || text.includes('503') || text.includes('500') || text.includes('health') || text.includes('crash')) {
     return RUNBOOK_REGISTRY['rb-service-down-v1'];
   }
 
