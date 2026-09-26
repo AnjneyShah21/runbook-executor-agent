@@ -2,11 +2,12 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY agent/package*.json ./agent/
 
+WORKDIR /app/agent
 RUN npm install
 
-COPY . .
+COPY agent/ ./
 
 RUN npm run build
 
