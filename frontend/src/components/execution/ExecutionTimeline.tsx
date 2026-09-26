@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { IncidentState, ExecutionLogStep } from '@/types/incident';
 import {
   CheckCircle2,
@@ -15,6 +16,8 @@ import {
   Brain,
   Sparkles,
   Play,
+  Copy,
+  Check,
 } from 'lucide-react';
 
 interface TimelineStep {
@@ -29,9 +32,16 @@ interface TimelineStep {
 
 export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const toggleLog = (id: string) => {
     setExpandedLogs((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleCopyJSON = (id: string, obj: unknown) => {
+    navigator.clipboard.writeText(JSON.stringify(obj, null, 2));
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const getSteps = (): TimelineStep[] => {
@@ -134,49 +144,55 @@ export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
         <h3 className="text-sm font-bold text-slate-200 tracking-wide uppercase flex items-center gap-2">
           <Activity className="w-4 h-4 text-indigo-400" /> Runbook Execution Timeline
         </h3>
-        <span className="text-xs text-slate-400 font-mono">
+        <span className="text-xs text-slate-400 font-mono bg-slate-900 px-2.5 py-1 rounded border border-slate-800">
           Duration: {incident.executionDurationMs ? `${(incident.executionDurationMs / 1000).toFixed(1)}s` : 'Active'}
         </span>
       </div>
 
-      <div className="relative pl-6 border-l-2 border-slate-800 space-y-8">
-        {steps.map((step) => {
+      <div className="relative pl-7 border-l-2 border-slate-800/80 space-y-8">
+        {steps.map((step, idx) => {
           const Icon = step.icon;
 
           return (
-            <div key={step.id} className="relative group">
+            <motion.div
+              key={step.id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              className="relative group"
+            >
               {/* Step indicator node */}
               <div
-                className={`absolute -left-[31px] top-0 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all ${
+                className={`absolute -left-[35px] top-0 w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                   step.status === 'COMPLETED'
-                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400'
+                    ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 glow-emerald'
                     : step.status === 'AWAITING_APPROVAL'
-                    ? 'bg-amber-500/20 border-amber-500 text-amber-400 animate-pulse'
+                    ? 'bg-amber-500/20 border-amber-500 text-amber-400 glow-amber animate-pulse'
                     : step.status === 'ACTIVE'
-                    ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400'
+                    ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 glow-blue ring-4 ring-indigo-500/10'
                     : step.status === 'FAILED'
-                    ? 'bg-rose-500/20 border-rose-500 text-rose-400'
+                    ? 'bg-rose-500/20 border-rose-500 text-rose-400 glow-rose'
                     : 'bg-slate-900 border-slate-700 text-slate-500'
                 }`}
               >
                 {step.status === 'COMPLETED' ? (
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                 ) : step.status === 'AWAITING_APPROVAL' ? (
-                  <Clock className="w-3.5 h-3.5" />
+                  <Clock className="w-4 h-4 text-amber-400" />
                 ) : step.status === 'FAILED' ? (
-                  <AlertOctagon className="w-3.5 h-3.5" />
+                  <AlertOctagon className="w-4 h-4 text-rose-400" />
                 ) : (
-                  <Icon className="w-3 h-3" />
+                  <Icon className="w-3.5 h-3.5" />
                 )}
               </div>
 
               {/* Step Card */}
               <div
-                className={`p-4 rounded-xl border transition-all ${
+                className={`p-5 rounded-2xl border transition-all duration-200 glass-card glass-card-hover ${
                   step.status === 'AWAITING_APPROVAL'
-                    ? 'bg-amber-500/10 border-amber-500/40 glow-amber'
+                    ? 'bg-amber-500/10 border-amber-500/50 glow-amber'
                     : step.status === 'COMPLETED'
-                    ? 'bg-slate-900/80 border-slate-800'
+                    ? 'bg-slate-900/80 border-slate-800/80'
                     : step.status === 'ACTIVE'
                     ? 'bg-indigo-500/10 border-indigo-500/40 glow-blue'
                     : 'bg-slate-950/40 border-slate-900 opacity-60'
@@ -184,15 +200,15 @@ export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h4 className="text-sm font-semibold text-slate-100">{step.title}</h4>
-                    <p className="text-xs text-slate-400 mt-0.5">{step.subtitle}</p>
+                    <h4 className="text-sm font-bold text-slate-100">{step.title}</h4>
+                    <p className="text-xs text-slate-400 mt-0.5 font-medium">{step.subtitle}</p>
                   </div>
                   <span
-                    className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded border ${
+                    className={`text-[10px] font-mono uppercase font-extrabold px-2.5 py-0.5 rounded border ${
                       step.status === 'COMPLETED'
                         ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
                         : step.status === 'AWAITING_APPROVAL'
-                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 animate-pulse'
                         : step.status === 'FAILED'
                         ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
                         : 'bg-slate-800 text-slate-400 border-slate-700'
@@ -203,7 +219,7 @@ export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
                 </div>
 
                 {step.detail && (
-                  <p className="text-xs text-slate-300 mt-2 bg-slate-950/60 p-2.5 rounded-lg border border-slate-800/80 font-mono">
+                  <p className="text-xs text-slate-300 mt-3 bg-slate-950/80 p-3 rounded-xl border border-slate-800/80 font-mono leading-relaxed">
                     {step.detail}
                   </p>
                 )}
@@ -213,36 +229,61 @@ export function ExecutionTimeline({ incident }: { incident: IncidentState }) {
                   <div className="mt-3 space-y-2">
                     <button
                       onClick={() => toggleLog(step.id)}
-                      className="text-xs text-indigo-400 font-medium flex items-center gap-1 hover:text-indigo-300 transition-colors"
+                      className="text-xs text-indigo-400 font-semibold flex items-center gap-1.5 hover:text-indigo-300 transition-colors"
                     >
                       {expandedLogs[step.id] ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-                      <span>{expandedLogs[step.id] ? 'Hide Diagnostic Output' : 'Inspect Tool Diagnostic Output'}</span>
+                      <span>{expandedLogs[step.id] ? 'Collapse Tool Output' : 'Inspect Diagnostic Tool Output Logs'}</span>
                     </button>
 
-                    {expandedLogs[step.id] && (
-                      <div className="space-y-2 pt-2">
-                        {step.logs.map((log) => (
-                          <div
-                            key={log.stepId}
-                            className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs font-mono space-y-1.5"
-                          >
-                            <div className="flex items-center justify-between text-slate-300">
-                              <span className="font-bold text-indigo-400">{log.stepName}</span>
-                              <span className="text-[10px] text-slate-500">{log.durationMs}ms</span>
+                    <AnimatePresence>
+                      {expandedLogs[step.id] && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="space-y-3 pt-2 overflow-hidden"
+                        >
+                          {step.logs.map((log) => (
+                            <div
+                              key={log.stepId}
+                              className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono space-y-2"
+                            >
+                              <div className="flex items-center justify-between text-slate-300 border-b border-slate-900 pb-2">
+                                <span className="font-bold text-indigo-400 flex items-center gap-1.5">
+                                  <Terminal className="w-3.5 h-3.5" />
+                                  <span>{log.stepName}</span>
+                                </span>
+                                <div className="flex items-center gap-3">
+                                  <span className="text-[10px] text-slate-500">{log.durationMs}ms</span>
+                                  {log.outputResult !== undefined && log.outputResult !== null && (
+                                    <button
+                                      onClick={() => handleCopyJSON(log.stepId, log.outputResult)}
+                                      className="text-slate-400 hover:text-indigo-300 transition-colors"
+                                      title="Copy JSON"
+                                    >
+                                      {copiedId === log.stepId ? (
+                                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                      ) : (
+                                        <Copy className="w-3.5 h-3.5" />
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                              {log.outputResult !== undefined && log.outputResult !== null && (
+                                <pre className="text-[11px] text-indigo-200 bg-slate-900/90 p-3 rounded-lg overflow-x-auto border border-slate-800/80 leading-relaxed">
+                                  {JSON.stringify(log.outputResult, null, 2)}
+                                </pre>
+                              )}
                             </div>
-                            {log.outputResult !== undefined && log.outputResult !== null && (
-                              <pre className="text-[11px] text-slate-400 bg-slate-900/90 p-2 rounded overflow-x-auto border border-slate-800">
-                                {JSON.stringify(log.outputResult, null, 2)}
-                              </pre>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>
