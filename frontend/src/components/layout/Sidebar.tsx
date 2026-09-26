@@ -12,6 +12,9 @@ import {
   Cpu,
 } from 'lucide-react';
 
+import { useState, useEffect } from 'react';
+import { IncidentService } from '@/services/incident-service';
+
 const NAV_ITEMS = [
   { label: 'SRE Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Incidents Directory', href: '/incidents', icon: AlertTriangle },
@@ -20,8 +23,35 @@ const NAV_ITEMS = [
   { label: 'Settings', href: '/settings', icon: Settings },
 ];
 
-export function Sidebar({ pendingApprovalsCount = 1 }: { pendingApprovalsCount?: number }) {
+export function Sidebar({ pendingApprovalsCount: propCount }: { pendingApprovalsCount?: number }) {
   const pathname = usePathname();
+  const [dynamicCount, setDynamicCount] = useState<number>(0);
+
+  useEffect(() => {
+    let active = true;
+    const fetchCount = async () => {
+      try {
+        const { incidents } = await IncidentService.getAllIncidents();
+        if (!active) return;
+        const pending = incidents.filter(
+          (i) => i.status === 'Awaiting Approval' || (i.approvalRequest && i.approvalRequest.status === 'PENDING')
+        ).length;
+        setDynamicCount(pending);
+      } catch {
+        // fallback
+      }
+    };
+
+    fetchCount();
+    const interval = setInterval(fetchCount, 4000);
+    return () => {
+      active = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  const pendingApprovalsCount = propCount !== undefined ? propCount : dynamicCount;
+
 
   // Hide sidebar on clean auth/onboarding pages
   if (pathname === '/signin' || pathname === '/signup' || pathname === '/onboarding') {
