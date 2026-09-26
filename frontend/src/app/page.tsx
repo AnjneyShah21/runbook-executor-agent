@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
   LogIn,
   UserPlus,
@@ -137,7 +136,7 @@ const PLATFORM_FEATURES = [
 
 export default function FeaturesHomePage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [activeFeature, setActiveFeature] = useState<string>('intake');
 
   const selectedFeatureObj = PLATFORM_FEATURES.find((f) => f.id === activeFeature) || PLATFORM_FEATURES[0];

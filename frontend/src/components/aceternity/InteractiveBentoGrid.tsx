@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
 import { SpotlightCard } from './SpotlightCard';
 import { Cpu, Server, Database, ShieldCheck, Activity, Terminal } from 'lucide-react';
 import Link from 'next/link';

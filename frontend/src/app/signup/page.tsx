@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -29,7 +28,6 @@ const PERKS = [
 ];
 
 export default function SignUpPage() {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleGoogleSignUp = async () => {
@@ -37,13 +35,6 @@ export default function SignUpPage() {
     // Always use real Google OAuth → on success redirects to /onboarding
     await signIn('google', { callbackUrl: '/onboarding' });
   };
-
-  // Dev-only fallback when no Google credentials are configured
-  const handleDevSignUp = () => {
-    router.push('/onboarding');
-  };
-
-  const isGoogleConfigured = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID !== undefined;
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 relative overflow-hidden bg-neutral-950">

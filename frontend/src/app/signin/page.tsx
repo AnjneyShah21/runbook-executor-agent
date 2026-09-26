@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Cpu, LogIn, ArrowRight, ShieldCheck, Lock, AlertCircle } from 'lucide-react';
+import { Cpu, LogIn, AlertCircle } from 'lucide-react';
 import { BackgroundBeams } from '@/components/aceternity/BackgroundBeams';
 
 export default function SignInPage() {

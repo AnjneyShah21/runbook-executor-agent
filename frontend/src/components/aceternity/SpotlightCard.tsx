@@ -38,8 +38,9 @@ export function SpotlightCard({
     >
       {/* Aceternity Dynamic Spotlight Gradient */}
       <div
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+        className="pointer-events-none absolute -inset-px rounded-2xl transition-opacity duration-300 group-hover:opacity-100"
         style={{
+          opacity: isHovered ? 1 : 0,
           background: `radial-gradient(500px circle at ${mousePosition.x}px ${mousePosition.y}px, ${spotlightColor}, transparent 60%)`,
         }}
       />

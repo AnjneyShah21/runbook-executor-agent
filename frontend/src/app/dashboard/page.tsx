@@ -34,7 +34,12 @@ export default function OperationalDashboardPage() {
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePill, setActivePill] = useState('ALL');
-  const [userDesignation, setUserDesignation] = useState<string>('');
+  const [userDesignation] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sre_user_designation') || 'Lead SRE';
+    }
+    return 'Lead SRE';
+  });
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -53,7 +58,6 @@ export default function OperationalDashboardPage() {
         router.push('/onboarding');
         return;
       }
-      setUserDesignation(saved);
     }
 
     const load = async () => {
