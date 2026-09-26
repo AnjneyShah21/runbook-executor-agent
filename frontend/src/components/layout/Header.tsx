@@ -47,15 +47,28 @@ export function Header() {
   const userEmail = session?.user?.email || 'sre.operator@example.com';
   const userAvatar = session?.user?.image || `https://api.dicebear.com/7.x/bottts/svg?seed=${userEmail}`;
 
+  const [copiedId, setCopiedId] = useState(false);
+
+  const handleCopyAgentId = () => {
+    navigator.clipboard.writeText(agentId);
+    setCopiedId(true);
+    setTimeout(() => setCopiedId(false), 2000);
+  };
+
   return (
     <header className="h-16 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-40">
       {/* Search / Context */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 border border-slate-700/60 text-slate-300 text-xs font-mono">
+        <button
+          onClick={handleCopyAgentId}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 text-slate-300 text-xs font-mono transition-all cursor-pointer active:scale-95"
+          title="Click to copy Agent ID"
+        >
           <UserCheck className="w-3.5 h-3.5 text-indigo-400" />
           <span>Agent ID:</span>
           <span className="text-slate-100 font-semibold">{agentId}</span>
-        </div>
+          {copiedId && <span className="text-[10px] text-emerald-400 font-bold ml-1 animate-pulse">Copied!</span>}
+        </button>
       </div>
 
       {/* Right controls */}
