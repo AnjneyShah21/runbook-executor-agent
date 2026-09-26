@@ -20,7 +20,7 @@ import {
   Cpu,
   CheckCircle2,
 } from 'lucide-react';
-import { BackgroundBeams } from '@/components/aceternity/BackgroundBeams';
+import { InteractiveMeshBackground } from '@/components/aceternity/InteractiveMeshBackground';
 import { InteractiveBentoGrid } from '@/components/aceternity/InteractiveBentoGrid';
 
 const PLATFORM_FEATURES = [
@@ -179,8 +179,8 @@ export default function FeaturesHomePage() {
 
   return (
     <div className="relative min-h-screen space-y-16 pb-20 overflow-hidden bg-neutral-950">
-      {/* Aceternity Background Beams */}
-      <BackgroundBeams />
+      {/* Interactive Cyber Mesh Background */}
+      <InteractiveMeshBackground />
 
       {/* Clean Header Bar: Logo on Left, Log In & Sign Up on Right */}
       <header className="relative z-20 flex items-center justify-between py-5 px-6 border-b border-slate-800/60 max-w-7xl mx-auto">
