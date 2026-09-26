@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import { IncidentState } from '@/types/incident';
 import { IncidentService } from '@/services/incident-service';
 import { StatsCards } from '@/components/dashboard/StatsCards';
@@ -9,7 +10,22 @@ import { SeverityDistribution } from '@/components/dashboard/SeverityDistributio
 import { RecentIncidentsTable } from '@/components/dashboard/RecentIncidentsTable';
 import { ApprovalCard } from '@/components/approvals/ApprovalCard';
 import Link from 'next/link';
-import { PlusCircle, ShieldAlert, RefreshCw, Zap, ArrowRight, Filter } from 'lucide-react';
+import {
+  PlusCircle,
+  ShieldAlert,
+  RefreshCw,
+  Zap,
+  ArrowRight,
+  Filter,
+  Brain,
+  Terminal,
+  ShieldCheck,
+  RotateCw,
+  FileText,
+  Activity,
+  LogIn,
+  UserPlus,
+} from 'lucide-react';
 
 const CATEGORY_PILLS = [
   { id: 'ALL', label: 'All Incidents' },
@@ -20,7 +36,53 @@ const CATEGORY_PILLS = [
   { id: 'RESOLVED', label: 'Verified Audits' },
 ];
 
+const PLATFORM_FEATURES = [
+  {
+    title: '1. Incident Telemetry Intake',
+    description: 'Ingests Datadog, Prometheus, and PagerDuty telemetry alerts with severity & environment classification.',
+    icon: Activity,
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10 border-indigo-500/30 glow-indigo',
+  },
+  {
+    title: '2. LLM Root Cause Diagnosis',
+    description: 'Analyzes error traces, scores confidence (>90%), and matches incidents to specialized runbooks.',
+    icon: Brain,
+    color: 'text-cyan-400',
+    bg: 'bg-cyan-500/10 border-cyan-500/30 glow-cyan',
+  },
+  {
+    title: '3. MCP Diagnostic Tool Execution',
+    description: 'Runs non-destructive inspection tools (CPU, process inspect, health probes) automatically.',
+    icon: Terminal,
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/10 border-amber-500/30 glow-amber',
+  },
+  {
+    title: '4. TrueForge Human Approval Gate',
+    description: 'Halts workflow before state-mutating remediation, requiring human authorization & risk review.',
+    icon: ShieldCheck,
+    color: 'text-rose-400',
+    bg: 'bg-rose-500/10 border-rose-500/30 glow-rose',
+  },
+  {
+    title: '5. Automated Remediation',
+    description: 'Executes authorized fixes (graceful restarts, process termination, connection pool flush).',
+    icon: RotateCw,
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/10 border-emerald-500/30 glow-emerald',
+  },
+  {
+    title: '6. Structured Incident Reporting',
+    description: 'Generates comprehensive post-incident execution reports downloadable as Markdown or JSON.',
+    icon: FileText,
+    color: 'text-purple-400',
+    bg: 'bg-purple-500/10 border-purple-500/30 glow-indigo',
+  },
+];
+
 export default function DashboardPage() {
+  const { data: session } = useSession();
   const [incidents, setIncidents] = useState<IncidentState[]>([]);
   const [loading, setLoading] = useState(true);
   const [activePill, setActivePill] = useState('ALL');
@@ -50,8 +112,16 @@ export default function DashboardPage() {
   const filteredIncidents = incidents.filter((inc) => {
     if (activePill === 'ALL') return true;
     if (activePill === 'CPU') return inc.intake.title.toLowerCase().includes('cpu');
-    if (activePill === 'AVAILABILITY') return inc.intake.serviceName.toLowerCase().includes('gateway') || inc.intake.title.toLowerCase().includes('unavailable');
-    if (activePill === 'DATABASE') return inc.intake.serviceName.toLowerCase().includes('db') || inc.intake.title.toLowerCase().includes('database');
+    if (activePill === 'AVAILABILITY')
+      return (
+        inc.intake.serviceName.toLowerCase().includes('gateway') ||
+        inc.intake.title.toLowerCase().includes('unavailable')
+      );
+    if (activePill === 'DATABASE')
+      return (
+        inc.intake.serviceName.toLowerCase().includes('db') ||
+        inc.intake.title.toLowerCase().includes('database')
+      );
     if (activePill === 'APPROVAL') return inc.status === 'Awaiting Approval';
     if (activePill === 'RESOLVED') return inc.status === 'Resolved';
     return true;
@@ -60,8 +130,8 @@ export default function DashboardPage() {
   const pendingApprovalIncident = incidents.find((i) => i.status === 'Awaiting Approval');
 
   return (
-    <div className="space-y-10 pb-10">
-      {/* Scrolltide Hero Banner */}
+    <div className="space-y-12 pb-12">
+      {/* Scrolltide Hero & Auth Banner */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -73,29 +143,49 @@ export default function DashboardPage() {
         <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-          <div className="space-y-3 max-w-2xl">
+          <div className="space-y-4 max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
               <Zap className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
               <span>TrueForge Agent Harness v0.2.0 • Autonomous SRE Ops</span>
             </div>
 
             <h1 className="text-3xl lg:text-4xl font-black text-slate-100 tracking-tight leading-tight">
-              Automated Incident Diagnosis & Runbook Remediation
+              Runbook Executor Agent
             </h1>
 
             <p className="text-xs lg:text-sm text-slate-300 leading-relaxed font-normal">
-              Continuous telemetry ingestion, LLM root cause analysis, non-destructive MCP diagnostics, and human-in-the-loop authorization gate.
+              Autonomous production incident intake, LLM diagnosis, non-destructive diagnostic execution, human approval gates, and closed-loop verification.
             </p>
           </div>
 
-          {/* Hero CTAs */}
+          {/* Top Auth & Action Buttons */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            {!session && (
+              <>
+                <Link
+                  href="/signin"
+                  className="bg-slate-900 hover:bg-slate-800 text-slate-100 font-bold text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 border border-slate-700 transition-all"
+                >
+                  <LogIn className="w-4 h-4 text-indigo-400" />
+                  <span>Sign In</span>
+                </Link>
+
+                <Link
+                  href="/signup"
+                  className="bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3 px-5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Sign Up Free</span>
+                </Link>
+              </>
+            )}
+
             <Link
               href="/incidents/new"
-              className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all duration-200"
+              className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs py-3.5 px-5 rounded-xl flex items-center justify-center gap-2 shadow-xl shadow-indigo-600/30 transition-all"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Report Production Incident</span>
+              <span>Report Incident</span>
             </Link>
 
             <button
@@ -104,18 +194,51 @@ export default function DashboardPage() {
               title="Refresh Telemetry Data"
             >
               <RefreshCw className={`w-4 h-4 text-indigo-400 ${loading ? 'animate-spin' : ''}`} />
-              <span>Sync Telemetry</span>
             </button>
           </div>
         </div>
       </motion.div>
 
-      {/* Scrolltide Category Filter Pills (Inspired by Scrolltide Library Header) */}
-      <div className="space-y-3">
+      {/* Platform Features Showcase Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <h2 className="text-base font-black text-slate-100 tracking-tight flex items-center gap-2">
+            <Zap className="w-4 h-4 text-indigo-400" /> Platform Architecture & Capabilities
+          </h2>
+          <span className="text-xs text-slate-400 font-mono">6 Core Operational Modules</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {PLATFORM_FEATURES.map((feat, idx) => {
+            const Icon = feat.icon;
+            return (
+              <motion.div
+                key={feat.title}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.05 }}
+                whileHover={{ y: -2 }}
+                className={`p-5 rounded-2xl border ${feat.bg} glass-card glass-card-hover space-y-2`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800">
+                    <Icon className={`w-4 h-4 ${feat.color}`} />
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-100">{feat.title}</h3>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed pl-1">{feat.description}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Scrolltide Category Filter Pills */}
+      <div className="space-y-3 pt-4 border-t border-slate-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-300 uppercase tracking-wider">
             <Filter className="w-3.5 h-3.5 text-indigo-400" />
-            <span>The Telemetry Library, at a glance</span>
+            <span>The Telemetry Directory, at a glance</span>
           </div>
           <span className="text-xs text-slate-400 font-mono">{filteredIncidents.length} Filtered Results</span>
         </div>
