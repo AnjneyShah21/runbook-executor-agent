@@ -10,11 +10,9 @@ import {
   Settings,
   PlusCircle,
   Cpu,
-  Home,
 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { label: 'Home Overview', href: '/', icon: Home },
   { label: 'SRE Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Incidents Directory', href: '/incidents', icon: AlertTriangle },
   { label: 'Approval Center', href: '/approvals', icon: ShieldCheck, badgeKey: 'approvals' },
